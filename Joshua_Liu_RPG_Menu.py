@@ -1,3 +1,7 @@
+# Joshua
+# CS 30 Period 1
+# March 9, 2023
+# This is a simple RPG menu
 while True:
     # Give the user their options
     print("What do you want to do?")
