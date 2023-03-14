@@ -15,7 +15,7 @@ length = randint(4, 6)  # Length of room
 height = randint(4, 6)  # Width of room\
 player_pos = [0, 0]  # Player position
 
-# Function that creates the map
+"""Function that creates the map"""
 def generate_map():
     room = [  # Creating the room layout variable
         [randint(1, 5)]
@@ -33,7 +33,7 @@ def generate_map():
     room.pop(-1)  # delete superfluous room
     player_start = randint(0, length - 1)
     room[0][randint(0, length - 1)] = 0  # creating a starting room
-    room[x -1][randint(0, length - 1)] = 6  # creating a exit room
+    room[x -1][randint(0, length - 1)] = 6  # creating an exit room
     player_pos = [player_start, 0]
     return room
 
