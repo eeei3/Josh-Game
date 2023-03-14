@@ -7,7 +7,9 @@ from random import *
 # List of possible solutions
 DIRECTION = ["forward", "right", "left", "back"]
 # List of possible rooms
-ROOM_LEGEND = ["Index", "Treasure Room", "Trap Room", "Monster Room", "Regular Room", "Boss", "Exit"]
+ROOM_LEGEND = [["Index", "Your starting location!"], ["Treasure Room", "A room with booty!"],
+               ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
+               ["Regular Room", "Boring"], ["Boss", "R.I.P"], ["Exit", "Tataaa!"]]
 
 length = randint(4, 6)  # Length of room
 height = randint(4, 6)  # Width of room\
@@ -78,4 +80,5 @@ while 1:
     # Print the player's current status
     print(player_pos)
     print(game_map[player_pos[0]][player_pos[1]])
-    print(f'You are now in a {ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]]} room')
+    print(f'You are now in a {ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][0]} room')
+    print(ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][1])
