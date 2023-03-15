@@ -10,6 +10,88 @@ DIRECTION = ["forward", "right", "left", "back"]
 ROOM_LEGEND = [["Index", "Your starting location!"], ["Treasure Room", "A room with booty!"],
                ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
                ["Regular Room", "Boring"], ["Boss", "R.I.P"], ["Exit", "Tataaa!"]]
+ITEMS = {
+    "Regular Sword": {
+        "Desc": "Simple steel",
+    },
+    "Shield": {
+    "Desc": "Simple wood",
+    },
+    "Gilgamesh": {
+        "Desc": ":gilgamesh:",
+    },
+    "Jerma": {
+        "Desc": "Unleash destruction upon your foes",
+    },
+    "Omega Energy Sword": {
+        "Desc": "Super damage!",
+    },
+    "Gravity Coil": {
+        "Desc": "boioioioioioioioioioioinnngggg dtdtdtddt",
+    },
+    "Speed Coil": {
+        "Desc": "vrrrrrrrrrrrrooooooooooooooom",
+    }
+}
+BOSS = {
+    "the FACE": {
+        "HP": 7,
+        "Actions": [],
+        "Damage": 7
+    },
+    "the MOON": {
+        "HP": 12,
+        "Actions": [],
+        "Damage": 3
+    },
+    "teh epix duck": {
+        "HP": 25,
+        "Actions": [],
+        "Damage": 6
+    },
+    "Telamon": {
+        "HP": 20,
+        "Actions": [],
+        "Damage": 2
+    }
+}
+ENEMIES = {
+    "Goblina": {
+        "HP": 3,
+        "Actions": [],
+        "Damage": 2
+    },
+    "talking ben": {
+        "HP": 1,
+        "Actions": [],
+        "Damage": 2
+    },
+    "Jesse": {
+        "HP": 5,
+        "Actions": [],
+        "Damage": 3
+    },
+    "Mr. White": {
+        "HP": 6,
+        "Actions": [],
+        "Damage": 1
+    },
+    "Anomaly": {
+        "HP": 3,
+        "Actions": [],
+        "Damage": 5
+    }
+}
+ACTIONS = {
+
+}
+
+character = {
+    "Name": "",
+    "HP": 5,
+    "Inventory": [],
+    "Bruh Power": 0
+}
 
 length = randint(4, 6)  # Length of room
 height = randint(4, 6)  # Width of room\
