@@ -1,7 +1,9 @@
-# Joshua
-# CS 30 Period 1
-# March 13, 2023
-# This is a simple game that generates a random map and allows movement
+"""
+Joshua
+CS 30 Period 1
+March 13, 2023
+This is a simple game that generates a random map and allows movement
+"""
 from random import *
 
 # List of possible solutions
