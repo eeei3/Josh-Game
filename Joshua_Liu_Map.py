@@ -196,6 +196,7 @@ move()
 # Game loop
 while 1:
     print(f'You are now in a {ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][0]} room')
+    print(f"{ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][1]}\n")
     print("What do you want to do?")
     for action in character["Actions"]:
         print(action)
@@ -208,5 +209,4 @@ while 1:
         act()
     elif choice == "Almanac":
         pass
-    print(f"{ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][1]}\n")
     print("\n")
