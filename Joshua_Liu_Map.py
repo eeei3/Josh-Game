@@ -1,7 +1,10 @@
-# Joshua
-# CS 30 Period 1
-# March 13, 2023
-# This is a simple game that generates a random map and allows movement
+"""
+Joshua
+CS 30 Period 1
+March 13, 2023
+This is a simple game that generates a random map, allows movement and has a system
+for enemies and inventories alike.
+"""
 from random import *
 
 # List of possible solutions
@@ -13,84 +16,89 @@ ROOM_LEGEND = [["Index", "Your starting location!"], ["Treasure Room", "A room w
 ITEMS = {
     "Regular Sword": {
         "Desc": "Simple steel",
+        "Dmg": 3
     },
     "Shield": {
-    "Desc": "Simple wood",
+        "Desc": "Simple wood",
     },
     "Gilgamesh": {
         "Desc": ":gilgamesh:",
+        "Dmg": 90
     },
     "Jerma": {
         "Desc": "Unleash destruction upon your foes",
+        "Dmg": 35
     },
     "Omega Energy Sword": {
         "Desc": "Super damage!",
+        "Dmg": 20
     },
     "Gravity Coil": {
         "Desc": "boioioioioioioioioioioinnngggg dtdtdtddt",
     },
     "Speed Coil": {
         "Desc": "vrrrrrrrrrrrrooooooooooooooom",
+    },
+    "Key": {
+        "Desc": "But what does it sayyyyyyy?!?!",
     }
 }
 BOSS = {
     "the FACE": {
         "HP": 7,
-        "Actions": [],
+        "Actions": ["Bite", "Block", "Parry"],
         "Damage": 7
     },
     "the MOON": {
         "HP": 12,
-        "Actions": [],
+        "Actions": ["Roll", "Block", "Parry"],
         "Damage": 3
     },
     "teh epix duck": {
         "HP": 25,
-        "Actions": [],
+        "Actions": ["Qauck", "Block", "Parry"],
         "Damage": 6
     },
     "Telamon": {
         "HP": 20,
-        "Actions": [],
+        "Actions": ["Stab", "Block", "Parry"],
         "Damage": 2
     }
 }
 ENEMIES = {
     "Goblina": {
         "HP": 3,
-        "Actions": [],
+        "Actions": ["Swing"],
         "Damage": 2
     },
     "talking ben": {
         "HP": 1,
-        "Actions": [],
+        "Actions": ["Talk"],
         "Damage": 2
     },
     "Jesse": {
         "HP": 5,
-        "Actions": [],
+        "Actions": ["Cook"],
         "Damage": 3
     },
     "Mr. White": {
         "HP": 6,
-        "Actions": [],
+        "Actions": ["Cook"],
         "Damage": 1
     },
     "Anomaly": {
         "HP": 3,
-        "Actions": [],
+        "Actions": ["Scream"],
         "Damage": 5
     }
-}
-ACTIONS = {
-
 }
 
 character = {
     "Name": "",
     "HP": 5,
     "Inventory": [],
-    "Bruh Power": 0
+    "Bruh Power": 0,
+    "Actions": ["Search", "Move", "Battle", "Almanac"]
 }
 
 length = randint(4, 6)  # Length of room
@@ -98,6 +106,8 @@ height = randint(4, 6)  # Width of room\
 player_pos = [0, 0]  # Player position
 
 """Function that creates the map"""
+
+
 def generate_map():
     room = [  # Creating the room layout variable
         [randint(1, 5)]
@@ -120,11 +130,8 @@ def generate_map():
     return room
 
 
-game_map = generate_map()  # generate the map
-# Game loop
-while 1:
+def move():
     x = 0
-    # User input loop
     while x == 0:
         print("What do you want to do?")
         # Copy of DIRECTION list with only valid input
@@ -150,17 +157,47 @@ while 1:
             quit()
         else:
             x = 1
-    # Seeing what action user chose
-    if choice == "forward":
-        player_pos[1] += 1
-    elif choice == "right":
-        player_pos[0] += 1
-    elif choice == "left":
-        player_pos[0] -= 1
-    elif choice == "back":
-        player_pos[1] -= 1
-    # Print the player's current status
+        # Seeing what action user chose
+        if choice == "forward":
+            player_pos[1] += 1
+            x = 1
+        elif choice == "right":
+            player_pos[0] += 1
+            x = 1
+        elif choice == "left":
+            player_pos[0] -= 1
+            x = 1
+        elif choice == "back":
+            player_pos[1] -= 1
+            x = 1
+
+
+def act():
+    print("Your available actions:")
+    for item in ITEMS.keys():
+        for thing in ITEMS[item].keys():
+            print(f'{item}: {thing} {ITEMS[item][thing]}')
+
+
+game_map = generate_map()  # generate the map
+move()
+# Game loop
+while 1:
+    # User input loop
     print(player_pos)
     print(game_map[player_pos[0]][player_pos[1]])
     print(f'You are now in a {ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][0]} room')
-    print(ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][1])
+    print("What do you want to do?")
+    for action in character["Actions"]:
+        print(action)
+    choice = input()
+    if choice == "Move":
+        move()
+    elif choice == "Search":
+        act()
+    elif choice == "Battle":
+        act()
+    elif choice == "Almanac":
+        pass
+    print(f"{ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][1]}\n")
+    print("\n")
