@@ -5,6 +5,8 @@ added - functions for movement and actions
 
 fixed - out-of-bounds movement
 
+added - empty list
+
 removed - herobrine
 
 
