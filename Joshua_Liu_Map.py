@@ -103,6 +103,8 @@ character = {
     "Actions": ["Search", "Move", "Battle", "Almanac"]
 }
 
+cleared_rooms = []
+
 length = randint(4, 6)  # Length of room
 height = randint(4, 6)  # Width of room
 player_pos = [0, 0]  # Player position
