@@ -1,3 +1,13 @@
+v1.1
+Joshua_Liu_Map.py
+
+added - functions for movement and actions
+
+fixed - out-of-bounds movement
+
+removed - herobrine
+
+
 v1.0
 
 Joshua_Liu_Map.py
