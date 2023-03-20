@@ -2,10 +2,12 @@
 Joshua
 CS 30 Period 1
 March 13, 2023
-This is a simple game that generates a random map, allows movement and has a system
-for enemies and inventories alike.
+This is a simple game that generates a random map,
+allows movement and has a system for enemies and
+inventories alike.
 """
 from random import *
+
 
 # List of possible solutions
 DIRECTION = ["forward", "right", "left", "back"]
@@ -102,7 +104,7 @@ character = {
 }
 
 length = randint(4, 6)  # Length of room
-height = randint(4, 6)  # Width of room\
+height = randint(4, 6)  # Width of room
 player_pos = [0, 0]  # Player position
 
 """Function that creates the map"""
@@ -125,13 +127,18 @@ def generate_map():
     room.pop(-1)  # delete superfluous room
     player_start = randint(0, length - 1)
     room[0][randint(0, length - 1)] = 0  # creating a starting room
-    room[x -1][randint(0, length - 1)] = 6  # creating an exit room
+    room[x - 1][randint(0, length - 1)] = 6  # creating an exit room
     player_pos = [player_start, 0]
     return room
 
 
+"""Player movement function. Moves player and determines valid input"""
+
+
 def move():
+    global player_pos
     x = 0
+    # User input loop
     while x == 0:
         print("What do you want to do?")
         # Copy of DIRECTION list with only valid input
@@ -172,6 +179,9 @@ def move():
             x = 1
 
 
+"""Printing player actions function. Prints inventory"""
+
+
 def act():
     print("Your available actions:")
     for item in ITEMS.keys():
@@ -183,9 +193,6 @@ game_map = generate_map()  # generate the map
 move()
 # Game loop
 while 1:
-    # User input loop
-    print(player_pos)
-    print(game_map[player_pos[0]][player_pos[1]])
     print(f'You are now in a {ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][0]} room')
     print("What do you want to do?")
     for action in character["Actions"]:
