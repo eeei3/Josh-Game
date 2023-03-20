@@ -100,7 +100,7 @@ character = {
     "HP": 5,
     "Inventory": [],
     "Bruh Power": 0,
-    "Actions": ["Search", "Move", "Battle", "Almanac"]
+    "Actions": ["Search", "Move", "Battle", "Almanac", "Check Inventory"]
 }
 
 cleared_rooms = []
@@ -128,7 +128,7 @@ def generate_map():
         x += 1  # increment x
     room.pop(-1)  # delete superfluous room
     player_start = randint(0, length - 1)
-    room[0][randint(0, length - 1)] = 0  # creating a starting room
+    room[0][player_start] = 0  # creating a starting room
     room[x - 1][randint(0, length - 1)] = 6  # creating an exit room
     player_pos = [player_start, 0]
     return room
@@ -157,28 +157,24 @@ def move():
         print("Your options are the following:")
         for direction in temp:
             print(direction)
-        print("Enter 'quit' to exit the game")
+        print("Enter 'quit' to exit this menu")
         print("What will you choose?")
         choice = input()
         if choice not in temp and not choice == "quit":  # check if choice is valid
             print("invalid choice")
-        if "quit" in choice:
-            quit()
+        elif "quit" in choice:
+            x = 1
         else:
             x = 1
-        # Seeing what action user chose
-        if choice == "forward":
-            player_pos[1] += 1
-            x = 1
-        elif choice == "right":
-            player_pos[0] += 1
-            x = 1
-        elif choice == "left":
-            player_pos[0] -= 1
-            x = 1
-        elif choice == "back":
-            player_pos[1] -= 1
-            x = 1
+            # Seeing what action user chose
+            if choice == "forward":
+                player_pos[1] += 1
+            elif choice == "right":
+                player_pos[0] += 1
+            elif choice == "left":
+                player_pos[0] -= 1
+            elif choice == "back":
+                player_pos[1] -= 1
 
 
 """Printing player actions function. Prints inventory"""
@@ -200,13 +196,20 @@ while 1:
     print("What do you want to do?")
     for action in character["Actions"]:
         print(action)
+    print("Enter quit to exit the game")
     choice = input()
-    if choice == "Move":
+    if choice.capitalize() == "Move":
         move()
-    elif choice == "Search":
+    elif choice.capitalize() == "Search":
         act()
-    elif choice == "Battle":
+    elif choice.capitalize() == "Battle":
         act()
-    elif choice == "Almanac":
+    elif choice.capitalize() == "Almanac":
         pass
+    elif choice.title() == "Check Inventory":  # capitalize() wont work. Need title()
+        act()
+    elif choice.capitalize() == "Quit":
+        quit()
+    else:
+        print("Bad input. Try that again.")
     print("\n")
