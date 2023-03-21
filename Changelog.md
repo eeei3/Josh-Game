@@ -6,6 +6,8 @@ added - comments
 
 added - print inventory function
 
+removed - herobine
+
 
 v1.1
 
