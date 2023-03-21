@@ -219,7 +219,7 @@ while 1:
     elif choice.capitalize() == "Almanac":
         pass
     elif choice.title() == "Check Inventory":  # capitalize() wont work. Need title()
-        act()
+        check_inv()
     elif choice.capitalize() == "Quit":
         quit()
     else:
