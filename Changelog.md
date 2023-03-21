@@ -1,4 +1,14 @@
+v1.2
+
+Joshua_Liu_Map.py
+
+added - comments
+
+added - print inventory function
+
+
 v1.1
+
 Joshua_Liu_Map.py
 
 added - functions for movement and actions

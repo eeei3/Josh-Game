@@ -15,6 +15,7 @@ DIRECTION = ["forward", "right", "left", "back"]
 ROOM_LEGEND = [["Index", "Your starting location!"], ["Treasure Room", "A room with booty!"],
                ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
                ["Regular Room", "Boring"], ["Boss", "R.I.P"], ["Exit", "Tataaa!"]]
+# Constant for game items
 ITEMS = {
     "Regular Sword": {
         "Desc": "Simple steel",
@@ -45,6 +46,7 @@ ITEMS = {
         "Desc": "But what does it sayyyyyyy?!?!",
     }
 }
+# Constant for bosses
 BOSS = {
     "the FACE": {
         "HP": 7,
@@ -67,6 +69,7 @@ BOSS = {
         "Damage": 2
     }
 }
+# Constant for enemies
 ENEMIES = {
     "Goblina": {
         "HP": 3,
@@ -94,7 +97,7 @@ ENEMIES = {
         "Damage": 5
     }
 }
-
+# Player
 character = {
     "Name": "",
     "HP": 5,
@@ -102,8 +105,6 @@ character = {
     "Bruh Power": 0,
     "Actions": ["Search", "Move", "Battle", "Almanac", "Check Inventory"]
 }
-
-cleared_rooms = []
 
 length = randint(4, 6)  # Length of room
 height = randint(4, 6)  # Width of room
@@ -187,12 +188,23 @@ def act():
             print(f'{item}: {thing} {ITEMS[item][thing]}')
 
 
+"""Function for printing player inventory"""
+
+
+def check_inv():
+    print(f"You have {len(character['Inventory'])} items in your inventory")
+    if len(character["Inventory"]) != 0:
+        for item in character["Inventory"]:
+            print(f"You have a {item}")
+
+
 game_map = generate_map()  # generate the map
 move()
 # Game loop
 while 1:
     print(f'You are now in a {ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][0]} room')
     print(f"{ROOM_LEGEND[game_map[player_pos[1]][player_pos[0]]][1]}\n")
+
     print("What do you want to do?")
     for action in character["Actions"]:
         print(action)
