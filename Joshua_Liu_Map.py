@@ -7,6 +7,7 @@ allows movement and has a system for enemies and
 inventories alike.
 """
 from random import *
+from Joshua_Liu_Game_Functions import GeneralModules, MapModules, GameModules
 
 
 # List of possible solutions
