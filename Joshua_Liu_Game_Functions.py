@@ -1,51 +1,65 @@
 from random import *
+import datetime
 
 
 class GeneralModules:
     @staticmethod
-    def write_to_file(self, file, content):
+    def write_to_file(file, content):
         with open(file, "w") as fd:
-            fd.write(content)
+            if type(content) == type([0]):
+                for line in content:
+                    for cell in line:
+                        fd.write(str(cell))
+                        fd.write(",")
+                    fd.write("\n")
         return
+
     @staticmethod
-    def read_to_file(self):
-        return
+    def read_to_file(file):
+        with open(file, "r") as fd:
+            content = fd.read()
+        return content
+
     @staticmethod
-    def append_to_file(self):
+    def append_to_file(file, content):
         with open(file, "a") as fd:
+            fd.write("\n\n/\n\n")
             fd.write(content)
+        return
 
 
 class MapModules:
+
     length = randint(4, 6)  # Length of room
     height = randint(4, 6)  # Width of room
+    room = [  # Creating the room layout variable
+        [randint(1, 5)]
+    ]
 
-    def __init__(self, height, length):
+    def __init__(self, height, length, room):
         MapModules.length = length  # Length of room
         MapModules.height = height  # Width of room
-        return
+        MapModules.room = room  # The game map
 
-
-    def generate_map(self):
-        room = [  # Creating the room layout variable
-            [randint(1, 5)]
-        ]
+    @staticmethod
+    def generate_map():
         x = 0
         y = 0
-        global player_pos
         while x < MapModules.height:
             while y < MapModules.length:
-                room[x].append(randint(1, 5))  # Creating new row for more rooms
+                MapModules.room[x].append(randint(1, 5))  # Creating new row for more rooms
                 y += 1
-            room.append([randint(1, 5)])  # adding a new row
+            MapModules.room.append([randint(1, 5)])  # adding a new row
             y = 0  # reset y
             x += 1  # increment x
-        room.pop(-1)  # delete superfluous room
+        MapModules.room.pop(-1)  # delete superfluous room
         player_start = randint(0, MapModules.length - 1)
-        room[0][player_start] = 0  # creating a starting room
-        room[x - 1][randint(0, MapModules.length - 1)] = 6  # creating an exit room
-        player_pos = [player_start, 0]
-        return room
+        MapModules.room[0][player_start] = 0  # creating a starting room
+        MapModules.room[x - 1][randint(0, MapModules.length - 1)] = 6  # creating an exit room
+        GameModules.player_pos = [player_start, 0]
+        GeneralModules.write_to_file(
+            str(datetime.datetime.today()) + "map", MapModules.room)
+        return MapModules.room
 
 
 class GameModules:
@@ -59,6 +73,7 @@ class GameModules:
     }
 
     def __init__(self, character, player_pos):
+        GameModules.player_pos = player_pos  # Player position
         self.DIRECTION = ["forward", "right", "left", "back"]
         # List of possible rooms
         self.ROOM_LEGEND = [["Index", "Your starting location!"], ["Treasure Room", "A room with booty!"],
@@ -147,22 +162,21 @@ class GameModules:
         }
         # Player
         self.character = character
-        GameModules.player_pos = player_pos  # Player position
 
     """Printing player actions function. Prints inventory"""
 
     def act(self):
         print("Your available actions:")
-        for item in ITEMS.keys():
-            for thing in ITEMS[item].keys():
-                print(f'{item}: {thing} {ITEMS[item][thing]}')
+        for item in self.ITEMS.keys():
+            for thing in self.ITEMS[item].keys():
+                print(f'{item}: {thing} {self.ITEMS[item][thing]}')
 
     """Function for printing player inventory"""
 
     def check_inv(self):
-        print(f"You have {len(character['Inventory'])} items in your inventory")
-        if len(character["Inventory"]) != 0:
-            for item in character["Inventory"]:
+        print(f"You have {len(self.character['Inventory'])} items in your inventory")
+        if len(self.character["Inventory"]) != 0:
+            for item in self.character["Inventory"]:
                 print(f"You have a {item}")
 
     """Player movement function. Moves player and determines valid input"""
@@ -195,13 +209,13 @@ class GameModules:
                 x = 1
             else:
                 x = 1
-            # Seeing what action user chose
-            if choice == "forward":
-                GameModules.player_pos[1] += 1
-            elif choice == "right":
-                GameModules.player_pos[0] += 1
-            elif choice == "left":
-                GameModules.player_pos[0] -= 1
-            elif choice == "back":
-                GameModules.player_pos[1] -= 1
+                # Seeing what action user chose
+                if choice == "forward":
+                    GameModules.player_pos[1] += 1
+                elif choice == "right":
+                    GameModules.player_pos[0] += 1
+                elif choice == "left":
+                    GameModules.player_pos[0] -= 1
+                elif choice == "back":
+                    GameModules.player_pos[1] -= 1
 

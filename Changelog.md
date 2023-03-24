@@ -1,3 +1,23 @@
+v2.0
+Joshua_Liu_Map.py
+
+removed - redundant functions
+
+Joshua_Liu_Game_functions.py
+
+created - file
+
+created - GeneralModules 
+
+created - GameModules
+
+created - MapModules
+
+fixed - out-of-bounds movement
+
+removed - herobrine
+
+
 v1.2
 
 Joshua_Liu_Map.py
