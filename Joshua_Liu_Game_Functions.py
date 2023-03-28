@@ -1,23 +1,24 @@
 from random import *
 import datetime
+import pickle
 
 
 class GeneralModules:
     @staticmethod
     def write_to_file(file, content):
-        with open(file, "w") as fd:
+        with open(file, "wb") as fd:
             if type(content) == type([0]):
-                for line in content:
-                    for cell in line:
-                        fd.write(str(cell))
-                        fd.write(",")
-                    fd.write("\n")
+                pickle.dump(content, fd)
         return
 
     @staticmethod
-    def read_to_file(file):
-        with open(file, "r") as fd:
-            content = fd.read()
+    def read_to_file(file, mode):
+        with open(file, "rb") as fd:
+            if mode == "reload":
+                fd.seek(0)
+                content = pickle.load(fd)
+            else:
+                content = fd.read()
         return content
 
     @staticmethod
@@ -53,24 +54,15 @@ class MapModules:
             y = 0  # reset y
             x += 1  # increment x
         MapModules.room.pop(-1)  # delete superfluous room
-        player_start = randint(0, MapModules.length - 1)
+        player_start = randint(0, MapModules.length - 1) # create index cood
         MapModules.room[0][player_start] = 0  # creating a starting room
         MapModules.room[x - 1][randint(0, MapModules.length - 1)] = 6  # creating an exit room
-        GameModules.player_pos = [player_start, 0]
-        GeneralModules.write_to_file(
-            str(datetime.datetime.today()) + "map", MapModules.room)
+        GameModules.player_pos = [0, player_start]
         return MapModules.room
 
 
 class GameModules:
     player_pos = [0, 0]  # Player position
-    character = {
-        "Name": "",
-        "HP": 5,
-        "Inventory": [],
-        "Bruh Power": 0,
-        "Actions": ["Search", "Move", "Battle", "Almanac", "Check Inventory"]
-    }
 
     def __init__(self, character, player_pos):
         GameModules.player_pos = player_pos  # Player position
@@ -164,7 +156,6 @@ class GameModules:
         self.character = character
 
     """Printing player actions function. Prints inventory"""
-
     def act(self):
         print("Your available actions:")
         for item in self.ITEMS.keys():
@@ -172,7 +163,6 @@ class GameModules:
                 print(f'{item}: {thing} {self.ITEMS[item][thing]}')
 
     """Function for printing player inventory"""
-
     def check_inv(self):
         print(f"You have {len(self.character['Inventory'])} items in your inventory")
         if len(self.character["Inventory"]) != 0:
@@ -180,7 +170,6 @@ class GameModules:
                 print(f"You have a {item}")
 
     """Player movement function. Moves player and determines valid input"""
-
     def move(self):
         x = 0
         # User input loop
@@ -188,13 +177,13 @@ class GameModules:
             print("What do you want to do?")
             # Copy of DIRECTION list with only valid input
             temp = self.DIRECTION[::]
-            if GameModules.player_pos[0] == 0:
+            if self.character["player_pos"][0] == 0:
                 temp.remove("left")
-            if GameModules.player_pos[0] == MapModules.length - 1:
+            if self.character["player_pos"][0] == MapModules.length - 1:
                 temp.remove("right")
-            if GameModules.player_pos[1] == MapModules.height - 1:
+            if self.character["player_pos"][1] == MapModules.height - 1:
                 temp.remove("forward")
-            if GameModules.player_pos[1] == 0:
+            if self.character["player_pos"][1] == 0:
                 temp.remove("back")
 
             print("Your options are the following:")
@@ -211,11 +200,11 @@ class GameModules:
                 x = 1
                 # Seeing what action user chose
                 if choice == "forward":
-                    GameModules.player_pos[1] += 1
+                    self.character["player_pos"][1] += 1
                 elif choice == "right":
-                    GameModules.player_pos[0] += 1
+                    self.character["player_pos"][0] += 1
                 elif choice == "left":
-                    GameModules.player_pos[0] -= 1
+                    self.character["player_pos"][0] -= 1
                 elif choice == "back":
-                    GameModules.player_pos[1] -= 1
+                    self.character["player_pos"][1] -= 1
 
