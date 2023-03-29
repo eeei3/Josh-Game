@@ -1,3 +1,13 @@
+v3.1
+=
+Joshua_Liu_Map.py
+-
+added - comments
+
+Joshua_Liu_Game_Functions.py
+-
+added - comments
+
 v3.0
 =
 Joshua_Liu_Map.py
@@ -11,6 +21,8 @@ created - Ability to change player name
 Joshua_Liu_Game_Functions.py
 -
 changed - Consolidated player_pos under character
+
+added - pickle!
 
 fixed - fixed map creation
 

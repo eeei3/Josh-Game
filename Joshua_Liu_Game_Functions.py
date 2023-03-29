@@ -3,11 +3,14 @@ import datetime
 import pickle
 
 
+"""
+Class containing general file I/O methods
+"""
 class GeneralModules:
     @staticmethod
     def write_to_file(file, content):
         with open(file, "wb") as fd:
-            pickle.dump(content, fd)
+            pickle.dump(content, fd)  # turning content into byte stream
         return
 
     @staticmethod
@@ -15,7 +18,7 @@ class GeneralModules:
         with open(file, "rb") as fd:
             if mode == "reload":
                 fd.seek(0)
-                content = pickle.load(fd)
+                content = pickle.load(fd)  # turning byte stream into valid data
             else:
                 content = fd.read()
         return content
@@ -28,6 +31,9 @@ class GeneralModules:
         return
 
 
+"""
+Class containing methods and objects relating to the map
+"""
 class MapModules:
 
     length = randint(4, 6)  # Length of room
@@ -60,6 +66,9 @@ class MapModules:
         return MapModules.room
 
 
+"""
+Class relating to methods and objects of the actual game
+"""
 class GameModules:
 
     def __init__(self, character):
