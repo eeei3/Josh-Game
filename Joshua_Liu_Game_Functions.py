@@ -78,6 +78,7 @@ Class relating to methods and objects of the actual game
 
 
 class GameModules:
+    player_pos = None
 
     def __init__(self, character):
         GameModules.player_pos = [0, 0]  # Player position
