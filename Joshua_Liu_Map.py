@@ -7,15 +7,18 @@ allows movement and has a system for enemies and
 inventories alike.
 """
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules
-import datetime
 
 
 """
 Function for saving game state and exiting game
 """
+
+
 def game_quit():
-    GeneralModules.write_to_file("prevmap", game_map)  # Write map to file
-    GeneralModules.write_to_file("previnv", GameF.character)  # Write character state to file
+    # Write map to file
+    GeneralModules.write_to_file("prevmap", game_map)
+    # Write character state to file
+    GeneralModules.write_to_file("previnv", GameF.character)
     quit()
 
 
@@ -40,8 +43,10 @@ while x:  # Start up loop
     choice = input()  # See what the user wants to do
     if choice.capitalize() == "Previous":
         try:
-            game_map = GeneralModules.read_to_file("prevmap", "reload")  # Get previous map
-            GameF.character = GeneralModules.read_to_file("previnv", "reload")  # Get previous character state
+            # Get previous map
+            game_map = GeneralModules.read_to_file("prevmap", "reload")
+            # Get previous character state
+            GameF.character = GeneralModules.read_to_file("previnv", "reload")
             character = GameF.character  # make sure all bases are covered
             MapModules.length = len(game_map[0])  # Getting map length
             MapModules.height = len(game_map)  # Getting map height
@@ -79,7 +84,8 @@ while 1:
         GameModules.act(GameF)
     elif choice.capitalize() == "Almanac":
         pass
-    elif choice.title() == "Check Inventory":  # capitalize() wont work. Need title()
+    # capitalize() wont work. Need title()
+    elif choice.title() == "Check Inventory":
         GameModules.check_inv(GameF)
     elif choice.capitalize() == "Quit":
         game_quit()

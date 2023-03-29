@@ -1,11 +1,12 @@
 from random import *
-import datetime
 import pickle
 
 
 """
 Class containing general file I/O methods
 """
+
+
 class GeneralModules:
     @staticmethod
     def write_to_file(file, content):
@@ -18,7 +19,8 @@ class GeneralModules:
         with open(file, "rb") as fd:
             if mode == "reload":
                 fd.seek(0)
-                content = pickle.load(fd)  # turning byte stream into valid data
+                # turning byte stream into valid data
+                content = pickle.load(fd)
             else:
                 content = fd.read()
         return content
@@ -34,6 +36,8 @@ class GeneralModules:
 """
 Class containing methods and objects relating to the map
 """
+
+
 class MapModules:
 
     length = randint(4, 6)  # Length of room
@@ -53,15 +57,17 @@ class MapModules:
         y = 0
         while x < MapModules.height:
             while y < MapModules.length:
-                MapModules.room[x].append(randint(1, 5))  # Creating new row for more rooms
+                # Creating new row for more rooms
+                MapModules.room[x].append(randint(1, 5))
                 y += 1
             MapModules.room.append([randint(1, 5)])  # adding a new row
             y = 0  # reset y
             x += 1  # increment x
         MapModules.room.pop(-1)  # delete superfluous room
-        player_start = randint(0, MapModules.length - 1) # create index cood
+        player_start = randint(0, MapModules.length - 1)  # create index cood
         MapModules.room[0][player_start] = 0  # creating a starting room
-        MapModules.room[x - 1][randint(0, MapModules.length - 1)] = 6  # creating an exit room
+        # creating an exit room
+        MapModules.room[x - 1][randint(0, MapModules.length - 1)] = 6
         GameModules.player_pos = [player_start, 0]
         return MapModules.room
 
@@ -69,15 +75,19 @@ class MapModules:
 """
 Class relating to methods and objects of the actual game
 """
+
+
 class GameModules:
 
     def __init__(self, character):
         GameModules.player_pos = [0, 0]  # Player position
         self.DIRECTION = ["forward", "right", "left", "back"]
         # List of possible rooms
-        self.ROOM_LEGEND = [["Index", "Your starting location!"], ["Treasure Room", "A room with booty!"],
-                       ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
-                       ["Regular Room", "Boring"], ["Boss", "R.I.P"], ["Exit", "Tataaa!"]]
+        self.ROOM_LEGEND = [["Index", "Your starting location!"],
+                            ["Treasure Room", "A room with booty!"],
+                            ["Trap Room", "ITS A TRAP!"], ["Monster Room","Run in circles! Your life depends on it!"],
+                            ["Regular Room", "Boring"], ["Boss", "R.I.P"],
+                            ["Exit", "Tataaa!"]]
         self.ITEMS = {
             "Regular Sword": {
                 "Desc": "Simple steel",
@@ -199,7 +209,8 @@ class GameModules:
             print("Enter 'quit' to exit this menu")
             print("What will you choose?")
             choice = input()
-            if choice not in temp and not choice == "quit":  # check if choice is valid
+            # check if choice is valid
+            if choice not in temp and not choice == "quit":
                 print("invalid choice")
             elif "quit" in choice:
                 x = 1
@@ -214,4 +225,3 @@ class GameModules:
                     self.character["player_pos"][0] -= 1
                 elif choice == "back":
                     self.character["player_pos"][1] -= 1
-
