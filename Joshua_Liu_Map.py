@@ -9,10 +9,13 @@ inventories alike.
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules
 import datetime
 
+
 def game_quit():
     GeneralModules.write_to_file("prevmap", game_map)
     GeneralModules.write_to_file("previnv", GameF.character)
+    print(GameF.character["player_pos"])
     quit()
+
 
 # Player
 character = {
@@ -24,40 +27,40 @@ character = {
     "player_pos": [0, 0]
 }
 
-GameF = GameModules(character, [0, 0])  # Create GameF object
+GameF = GameModules(character)  # Create GameF object
+x = True
+prev_game = False  # Check if game is new
 
 
 print("Do you want to load a previous session?")
 print("If you want to, enter previous, or enter new to make a new game")
-x = True
 while x:
     choice = input()
-    if choice.capitalize() != "New":
+    if choice.capitalize() == "Previous":
         try:
             game_map = GeneralModules.read_to_file("prevmap", "reload")
-            character = GeneralModules.read_to_file("previnv", "reload")
+            GameF.character = GeneralModules.read_to_file("previnv", "reload")
+            character = GameF.character
+            MapModules.length = len(game_map[0])
+            MapModules.height = len(game_map)
             x = False
         except FileNotFoundError as e:
             print("Previous save does not exist!")
-        except:
-            print(game_map)
-            print(character)
+            continue
+        except Exception as e:
             x = False
             continue
     else:
-        game_map = MapModules.generate_map()  # generate the map
-        print(GameModules.player_pos)
         x = False
+        game_map = MapModules.generate_map()  # generate the map
+        GameF.character["player_pos"] = GameModules.player_pos
+        print("Input your character's name:")
+        GameF.character["Name"] = input()
+        GameModules.move(GameF)  # Give player initial movement
 
 
-print(game_map)
-GameF.character["player_pos"] = GameModules.player_pos
-print(GameModules.player_pos)
-print(GameF.character)
-GameModules.move(GameF)  # Give player initial movement
 # Game loop
 while 1:
-    print(GameF.character)
     print(f'You are now in a "{GameF.ROOM_LEGEND[game_map[GameF.character["player_pos"][1]][GameF.character["player_pos"][0]]][0]}" room')
     print(f"{GameF.ROOM_LEGEND[game_map[GameF.character['player_pos'][1]][GameF.character['player_pos'][0]]][1]}\n")
     # Print available actions

@@ -7,8 +7,7 @@ class GeneralModules:
     @staticmethod
     def write_to_file(file, content):
         with open(file, "wb") as fd:
-            if type(content) == type([0]):
-                pickle.dump(content, fd)
+            pickle.dump(content, fd)
         return
 
     @staticmethod
@@ -57,15 +56,14 @@ class MapModules:
         player_start = randint(0, MapModules.length - 1) # create index cood
         MapModules.room[0][player_start] = 0  # creating a starting room
         MapModules.room[x - 1][randint(0, MapModules.length - 1)] = 6  # creating an exit room
-        GameModules.player_pos = [0, player_start]
+        GameModules.player_pos = [player_start, 0]
         return MapModules.room
 
 
 class GameModules:
-    player_pos = [0, 0]  # Player position
 
-    def __init__(self, character, player_pos):
-        GameModules.player_pos = player_pos  # Player position
+    def __init__(self, character):
+        GameModules.player_pos = [0, 0]  # Player position
         self.DIRECTION = ["forward", "right", "left", "back"]
         # List of possible rooms
         self.ROOM_LEGEND = [["Index", "Your starting location!"], ["Treasure Room", "A room with booty!"],
