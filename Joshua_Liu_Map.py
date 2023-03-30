@@ -55,8 +55,9 @@ while x:  # Start up loop
             print("Previous save does not exist!")
             continue
         except Exception as e:
-            x = False
-            continue
+            print("A fatal exception has occured!")
+            print(e)
+            quit()
     else:
         x = False
         game_map = MapModules.generate_map()  # generate the map
@@ -68,7 +69,9 @@ while x:  # Start up loop
 
 # Game loop
 while 1:
-    print(f'You are now in a "{GameF.ROOM_LEGEND[game_map[GameF.character["player_pos"][1]][GameF.character["player_pos"][0]]][0]}" room')
+    print(f'You are now in a "'
+          + f'{GameF.ROOM_LEGEND[game_map[GameF.character["player_pos"][1]][GameF.character["player_pos"][0]]][0]}"'
+          + f' room')
     print(f"{GameF.ROOM_LEGEND[game_map[GameF.character['player_pos'][1]][GameF.character['player_pos'][0]]][1]}\n")
     # Print available actions
     print("What do you want to do?")

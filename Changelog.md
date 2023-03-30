@@ -1,3 +1,13 @@
+v3.2
+=
+Joshua_Liu_Map.py
+-
+changed - pep8 compliance
+
+Joshua_Liu_Game_Functions.py
+-
+added - header
+
 v3.1
 =
 Joshua_Liu_Map.py

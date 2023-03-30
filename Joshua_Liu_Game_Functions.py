@@ -1,3 +1,10 @@
+"""
+Joshua
+CS 30 Period 1
+March 30, 2023
+This is file with functions for Joshua_Liu_Map.py
+"""
+
 from random import *
 import pickle
 
@@ -86,7 +93,7 @@ class GameModules:
         # List of possible rooms
         self.ROOM_LEGEND = [["Index", "Your starting location!"],
                             ["Treasure Room", "A room with booty!"],
-                            ["Trap Room", "ITS A TRAP!"], ["Monster Room","Run in circles! Your life depends on it!"],
+                            ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
                             ["Regular Room", "Boring"], ["Boss", "R.I.P"],
                             ["Exit", "Tataaa!"]]
         self.ITEMS = {
