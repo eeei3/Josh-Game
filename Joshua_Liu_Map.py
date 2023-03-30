@@ -69,9 +69,7 @@ while x:  # Start up loop
 
 # Game loop
 while 1:
-    print(f'You are now in a "'
-          + f'{GameF.ROOM_LEGEND[game_map[GameF.character["player_pos"][1]][GameF.character["player_pos"][0]]][0]}"'
-          + f' room')
+    print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[GameF.character["player_pos"][1]][GameF.character["player_pos"][0]]][0]}"' + f' room')
     print(f"{GameF.ROOM_LEGEND[game_map[GameF.character['player_pos'][1]][GameF.character['player_pos'][0]]][1]}\n")
     # Print available actions
     print("What do you want to do?")
