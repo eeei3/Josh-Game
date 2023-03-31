@@ -82,6 +82,7 @@ while 1:
     choice = input()  # get user choice
     if choice.capitalize() == "Move":
         GameModules.move(GameF)
+    # Placeholder functions
     elif choice.capitalize() == "Search":
         GameModules.act(GameF)
     elif choice.capitalize() == "Battle":
@@ -91,6 +92,7 @@ while 1:
     # capitalize() wont work. Need title()
     elif choice.title() == "Check Inventory":
         GameModules.check_inv(GameF)
+    # End Placeholder functions
     elif choice.capitalize() == "Quit":
         game_quit()
     else:

@@ -23,7 +23,7 @@ class GeneralModules:
     @staticmethod
     def write_to_file(file, content):
         with open(file, "wb") as fd:
-            pickle.dump(content, fd)  # turning content into byte stream
+            pickle.dump(content, fd)  # serializing content
         return
 
     """
@@ -35,7 +35,7 @@ class GeneralModules:
         with open(file, "rb") as fd:
             if mode == "reload":
                 fd.seek(0)
-                # turning byte stream into valid data
+                # deserializing content
                 content = pickle.load(fd)
             else:
                 content = fd.read()
@@ -223,6 +223,7 @@ class GameModules:
             print("What do you want to do?")
             # Copy of DIRECTION list with only valid input
             temp = self.DIRECTION[::]
+            # Remove invalid dirctions
             if self.character["player_pos"][0] == 0:
                 temp.remove("left")
             if self.character["player_pos"][0] == MapModules.length - 1:
@@ -231,7 +232,7 @@ class GameModules:
                 temp.remove("forward")
             if self.character["player_pos"][1] == 0:
                 temp.remove("back")
-
+            # Getting user input on direction
             print("Your options are the following:")
             for direction in temp:
                 print(direction)
@@ -242,9 +243,9 @@ class GameModules:
             if choice not in temp and not choice == "quit":
                 print("invalid choice")
             elif "quit" in choice:
-                x = 1
+                x = 1  # does not exit game, brings user back to previous menu
             else:
-                x = 1
+                x = 1  # breaking loop this way
                 # Seeing what action user chose
                 if choice == "forward":
                     self.character["player_pos"][1] += 1

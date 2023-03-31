@@ -1,3 +1,14 @@
+v3.2.1
+=
+Joshua_Liu_Map.py
+-
+added - more comments :)
+
+Joshua_Liu_Game_Functions
+-
+added - more comments :)
+removed - herobrine
+
 v3.2
 =
 Joshua_Liu_Map.py
