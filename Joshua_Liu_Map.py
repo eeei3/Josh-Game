@@ -32,7 +32,8 @@ character = {
     "player_pos": [0, 0]
 }
 
-GameF = GameModules(character)  # Create GameF object
+# create GameF object and pass character as argument
+GameF = GameModules(character)
 x = True  # Setting start loop to True
 prev_game = False  # Check if game is new
 
@@ -50,8 +51,8 @@ while x:  # Start up loop
             character = GameF.character  # make sure all bases are covered
             MapModules.length = len(game_map[0])  # Getting map length
             MapModules.height = len(game_map)  # Getting map height
-            x = False
-        except FileNotFoundError as e:
+            x = False  # stop loop
+        except FileNotFoundError:
             print("Previous save does not exist!")
             continue
         except Exception as e:
@@ -59,16 +60,18 @@ while x:  # Start up loop
             print(e)
             quit()
     else:
-        x = False
+        x = False  # stop loop
         game_map = MapModules.generate_map()  # generate the map
+        # Set previous coordinates as current
         GameF.character["player_pos"] = GameModules.player_pos
-        print("Input your character's name:")
-        GameF.character["Name"] = input()  # Get player name
+        print("Input your character's name:")  # Get player name
+        GameF.character["Name"] = input()
         GameModules.move(GameF)  # Give player initial movement
 
 
 # Game loop
 while 1:
+    # Print player location
     print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[GameF.character["player_pos"][1]][GameF.character["player_pos"][0]]][0]}"' + f' room')
     print(f"{GameF.ROOM_LEGEND[game_map[GameF.character['player_pos'][1]][GameF.character['player_pos'][0]]][1]}\n")
     # Print available actions
