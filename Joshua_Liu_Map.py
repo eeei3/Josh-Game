@@ -35,7 +35,6 @@ character = {
 # create GameF object and pass character as argument
 GameF = GameModules(character)
 x = True  # Setting start loop to True
-prev_game = False  # Check if game is new
 
 
 print("Do you want to load a previous session?")
@@ -48,18 +47,21 @@ while x:  # Start up loop
             game_map = GeneralModules.read_to_file("prevmap", "reload")
             # Get previous character state
             GameF.character = GeneralModules.read_to_file("previnv", "reload")
-            character = GameF.character  # make sure all bases are covered
-            MapModules.length = len(game_map[0])  # Getting map length
-            MapModules.height = len(game_map)  # Getting map height
-            x = False  # stop loop
         except FileNotFoundError:
-            print("Previous save does not exist!")
+            print("Previous save does not exist! Try again")
             continue
         except Exception as e:
             print("A fatal exception has occured!")
             print(e)
             quit()
-    else:
+        else:
+            character = GameF.character  # make sure all bases are covered
+            MapModules.length = len(game_map[0])  # Getting map length
+            MapModules.height = len(game_map)  # Getting map height
+            x = False  # stop loop
+        finally:
+            pass
+    elif choice.capitalize() == "New":
         x = False  # stop loop
         game_map = MapModules.generate_map()  # generate the map
         # Set previous coordinates as current
@@ -67,6 +69,8 @@ while x:  # Start up loop
         print("Input your character's name:")  # Get player name
         GameF.character["Name"] = input()
         GameModules.move(GameF)  # Give player initial movement
+    else:
+        print("Bad input. Try again")
 
 
 # Game loop
