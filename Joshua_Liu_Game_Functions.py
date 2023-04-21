@@ -95,7 +95,8 @@ class MapModules:
         # creating an exit room
         MapModules.room[x - 1][randint(0, MapModules.length - 1)] = 6
         GameModules.player_pos = [player_start, 0]
-        return MapModules.room
+        data = [MapModules.room, GameModules.player_pos]
+        return data
 
 
 """
@@ -133,15 +134,6 @@ class GameModules:
         def consumekey(self):
             if self.iskey == True:
                 print("You escaped!")
-
-    class Player:
-        def __init__(self):
-            self.name = ""
-            self.hp = 5
-            self.inventory = []
-            self.bruh_power = 0
-            self.actions = ["Search", "Move", "Battle", "Almanac", "Check Inventory"]
-            self.pos = []
 
     player_pos = None   # Variable for player position
 

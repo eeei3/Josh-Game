@@ -9,6 +9,14 @@ inventories alike.
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules
 
 
+class Player:
+    def __init__(self, name, hp, inventory, bruh_power, pos):
+        self.name = name
+        self.hp = hp
+        self.inventory = inventory
+        self.bruh_power = bruh_power
+        self.actions = ["Search", "Move", "Battle", "Almanac", "Check Inventory"]
+        self.pos = pos
 
 
 """
@@ -37,7 +45,7 @@ while x:  # Start up loop
             # Get previous map
             game_map = GeneralModules.read_to_file("prevmap", "reload")
             # Get previous character state
-            GameF.character = GeneralModules.read_to_file("previnv", "reload")
+            prevcharacter = GeneralModules.read_to_file("previnv", "reload")
         except FileNotFoundError:
             print("Previous save does not exist! Try again")
             continue
@@ -46,7 +54,9 @@ while x:  # Start up loop
             print(e)
             quit()
         else:
-            player = GameModules.Player()
+            player = Player(prevcharacter[0], prevcharacter[1],
+                            prevcharacter[2], prevcharacter[3],
+                            prevcharacter[4])
             MapModules.length = len(game_map[0])  # Getting map length
             MapModules.height = len(game_map)  # Getting map height
             x = False  # stop loop
@@ -54,11 +64,15 @@ while x:  # Start up loop
             pass
     elif choice.capitalize() == "New":
         x = False  # stop loop
-        game_map = MapModules.generate_map()  # generate the map
+        print("Input your character's name:")  # Get player name
+        name = input()
+        player = Player(name, 5, [], 0, [])
+        data = MapModules.generate_map()  # generate the map
+        game_map = data[0]
+        player.pos = data[1]
         # Set previous coordinates as current
         GameF.character["player_pos"] = GameModules.player_pos
         player.pos = GameModules.player_pos
-        print("Input your character's name:")  # Get player name
         GameF.character["Name"] = input()
         GameModules.move(GameF)  # Give player initial movement
     else:
