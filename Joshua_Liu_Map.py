@@ -25,10 +25,11 @@ Function for saving game state and exiting game
 
 
 def game_quit():
+    data = [player.name, player.hp, player.inventory, player.bruh_power, player.pos]
     # Write map to file
     GeneralModules.write_to_file("prevmap", game_map)
     # Write character state to file
-    GeneralModules.write_to_file("previnv", GameF.character)
+    GeneralModules.write_to_file("previnv", data)
     quit()
 
 # Player
@@ -59,6 +60,7 @@ while x:  # Start up loop
                             prevcharacter[4])
             MapModules.length = len(game_map[0])  # Getting map length
             MapModules.height = len(game_map)  # Getting map height
+            GameF = GameModules(player)
             x = False  # stop loop
         finally:
             pass
@@ -71,9 +73,10 @@ while x:  # Start up loop
         game_map = data[0]
         player.pos = data[1]
         # Set previous coordinates as current
-        GameF.character["player_pos"] = GameModules.player_pos
-        player.pos = GameModules.player_pos
-        GameF.character["Name"] = input()
+        # GameF.character["player_pos"] = GameModules.player_pos
+        GameF = GameModules(player)
+        # player.pos = GameModules.player_pos
+        # GameF.character["Name"] = input()
         GameModules.move(GameF)  # Give player initial movement
     else:
         print("Bad input. Try again")
@@ -82,11 +85,14 @@ while x:  # Start up loop
 # Game loop
 while 1:
     # Print player location
-    print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[GameF.character["player_pos"][1]][GameF.character["player_pos"][0]]][0]}"' + f' room')
-    print(f"{GameF.ROOM_LEGEND[game_map[GameF.character['player_pos'][1]][GameF.character['player_pos'][0]]][1]}\n")
+    print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[GameF.character.pos[1]][GameF.character.pos[0]]][0]}"'
+          + f' room')
+    # print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][0]}"' + f' room')
+    print(f"{GameF.ROOM_LEGEND[game_map[GameF.character.pos[1]][GameF.character.pos[0]]][1]}\n")
+    # print(f"{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][1]}\n")
     # Print available actions
     print("What do you want to do?")
-    for action in GameF.character["Actions"]:
+    for action in GameF.character.actions:
         print(action)
     print("Enter quit to exit the game")
     choice = input()  # get user choice

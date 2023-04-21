@@ -255,13 +255,13 @@ class GameModules:
             # Copy of DIRECTION list with only valid input
             temp = self.DIRECTION[::]
             # Remove invalid dirctions
-            if self.character["player_pos"][0] == 0:
+            if self.character.pos[0] == 0:
                 temp.remove("left")
-            if self.character["player_pos"][0] == MapModules.length - 1:
+            if self.character.pos[0] == MapModules.length - 1:
                 temp.remove("right")
-            if self.character["player_pos"][1] == MapModules.height - 1:
+            if self.character.pos[1] == MapModules.height - 1:
                 temp.remove("forward")
-            if self.character["player_pos"][1] == 0:
+            if self.character.pos[1] == 0:
                 temp.remove("back")
             # Getting user input on direction
             print("Your options are the following:")
@@ -279,10 +279,10 @@ class GameModules:
                 x = 1  # breaking loop this way
                 # Seeing what action user chose
                 if choice == "forward":
-                    self.character["player_pos"][1] += 1
+                    self.character.pos[1] += 1
                 elif choice == "right":
-                    self.character["player_pos"][0] += 1
+                    self.character.pos[0] += 1
                 elif choice == "left":
-                    self.character["player_pos"][0] -= 1
+                    self.character.pos[0] -= 1
                 elif choice == "back":
-                    self.character["player_pos"][1] -= 1
+                    self.character.pos[1] -= 1
