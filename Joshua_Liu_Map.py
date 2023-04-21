@@ -9,6 +9,8 @@ inventories alike.
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules
 
 
+
+
 """
 Function for saving game state and exiting game
 """
@@ -21,19 +23,8 @@ def game_quit():
     GeneralModules.write_to_file("previnv", GameF.character)
     quit()
 
-
 # Player
-character = {
-    "Name": "",
-    "HP": 5,
-    "Inventory": [],
-    "Bruh Power": 0,
-    "Actions": ["Search", "Move", "Battle", "Almanac", "Check Inventory"],
-    "player_pos": [0, 0]
-}
-
 # create GameF object and pass character as argument
-GameF = GameModules(character)
 x = True  # Setting start loop to True
 
 
@@ -55,7 +46,7 @@ while x:  # Start up loop
             print(e)
             quit()
         else:
-            character = GameF.character  # make sure all bases are covered
+            player = GameModules.Player()
             MapModules.length = len(game_map[0])  # Getting map length
             MapModules.height = len(game_map)  # Getting map height
             x = False  # stop loop
@@ -66,6 +57,7 @@ while x:  # Start up loop
         game_map = MapModules.generate_map()  # generate the map
         # Set previous coordinates as current
         GameF.character["player_pos"] = GameModules.player_pos
+        player.pos = GameModules.player_pos
         print("Input your character's name:")  # Get player name
         GameF.character["Name"] = input()
         GameModules.move(GameF)  # Give player initial movement

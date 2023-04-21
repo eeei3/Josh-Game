@@ -104,6 +104,45 @@ Class relating to methods and objects of the actual game
 
 
 class GameModules:
+    class Enemy:
+        def __init__(self, stats, position, isboss):
+            self.stats = stats
+            self.isboss = isboss
+            self.position = position
+            self.actions = ["Attack", "Defend", "Heal", "Move"]
+            self.hp = stats["HP"]
+            self.actions = stats["Actions"]
+            self.Damage = stats["Damage"]
+
+        def action(self):
+            move = self.actions[randint(0,4)]
+            if move == "Attack":
+                print("lol")
+            elif move == "Defend":
+                print("rofl")
+            elif move == "Heal":
+                print("lmao")
+            elif move == "Move":
+                print("XD")
+
+    class Item:
+        def __init__(self, stats, iskey):
+            self.stats = stats
+            self.iskey = iskey
+
+        def consumekey(self):
+            if self.iskey == True:
+                print("You escaped!")
+
+    class Player:
+        def __init__(self):
+            self.name = ""
+            self.hp = 5
+            self.inventory = []
+            self.bruh_power = 0
+            self.actions = ["Search", "Move", "Battle", "Almanac", "Check Inventory"]
+            self.pos = []
+
     player_pos = None   # Variable for player position
 
     def __init__(self, character):
