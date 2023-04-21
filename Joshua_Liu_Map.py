@@ -9,6 +9,8 @@ inventories alike.
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules
 
 
+
+
 """
 Function for saving game state and exiting game
 """
@@ -21,20 +23,9 @@ def game_quit():
     GeneralModules.write_to_file("previnv", GameF.character)
     quit()
 
-
 # Player
-character = {
-    "Name": "",
-    "HP": 5,
-    "Inventory": [],
-    "Bruh Power": 0,
-    "Actions": ["Search", "Move", "Battle", "Almanac", "Check Inventory"],
-    "player_pos": [0, 0]
-}
-
-GameF = GameModules(character)  # Create GameF object
+# create GameF object and pass character as argument
 x = True  # Setting start loop to True
-prev_game = False  # Check if game is new
 
 
 print("Do you want to load a previous session?")
@@ -47,28 +38,37 @@ while x:  # Start up loop
             game_map = GeneralModules.read_to_file("prevmap", "reload")
             # Get previous character state
             GameF.character = GeneralModules.read_to_file("previnv", "reload")
-            character = GameF.character  # make sure all bases are covered
-            MapModules.length = len(game_map[0])  # Getting map length
-            MapModules.height = len(game_map)  # Getting map height
-            x = False
-        except FileNotFoundError as e:
-            print("Previous save does not exist!")
+        except FileNotFoundError:
+            print("Previous save does not exist! Try again")
             continue
         except Exception as e:
-            x = False
-            continue
-    else:
-        x = False
+            print("A fatal exception has occured!")
+            print(e)
+            quit()
+        else:
+            player = GameModules.Player()
+            MapModules.length = len(game_map[0])  # Getting map length
+            MapModules.height = len(game_map)  # Getting map height
+            x = False  # stop loop
+        finally:
+            pass
+    elif choice.capitalize() == "New":
+        x = False  # stop loop
         game_map = MapModules.generate_map()  # generate the map
+        # Set previous coordinates as current
         GameF.character["player_pos"] = GameModules.player_pos
-        print("Input your character's name:")
-        GameF.character["Name"] = input()  # Get player name
+        player.pos = GameModules.player_pos
+        print("Input your character's name:")  # Get player name
+        GameF.character["Name"] = input()
         GameModules.move(GameF)  # Give player initial movement
+    else:
+        print("Bad input. Try again")
 
 
 # Game loop
 while 1:
-    print(f'You are now in a "{GameF.ROOM_LEGEND[game_map[GameF.character["player_pos"][1]][GameF.character["player_pos"][0]]][0]}" room')
+    # Print player location
+    print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[GameF.character["player_pos"][1]][GameF.character["player_pos"][0]]][0]}"' + f' room')
     print(f"{GameF.ROOM_LEGEND[game_map[GameF.character['player_pos'][1]][GameF.character['player_pos'][0]]][1]}\n")
     # Print available actions
     print("What do you want to do?")
@@ -78,6 +78,7 @@ while 1:
     choice = input()  # get user choice
     if choice.capitalize() == "Move":
         GameModules.move(GameF)
+    # Placeholder functions
     elif choice.capitalize() == "Search":
         GameModules.act(GameF)
     elif choice.capitalize() == "Battle":
@@ -87,6 +88,7 @@ while 1:
     # capitalize() wont work. Need title()
     elif choice.title() == "Check Inventory":
         GameModules.check_inv(GameF)
+    # End Placeholder functions
     elif choice.capitalize() == "Quit":
         game_quit()
     else:
