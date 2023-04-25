@@ -1,15 +1,59 @@
 """
 Joshua
 CS 30 Period 1
-March 13, 2023
-This is a simple game that generates a random map,
-allows movement and has a system for enemies and
-inventories alike.
+April 24, 2023
+This is a text-based game that is programmed with OOP.
 """
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules
 
 
-class Player:
+class Game:
+    def __init__(self):
+        while True:
+            self.main()
+
+    def game_quit():
+        gdata = [player.name, player.hp, player.inventory, player.bruh_power, player.pos]
+        # Write map to file
+        GeneralModules.write_to_file("prevmap", game_map)
+        # Write character state to file
+        GeneralModules.write_to_file("previnv", gdata)
+        quit()
+
+    def main(self):
+        print(
+            f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[GameF.character.pos[1]][GameF.character.pos[0]]][0]}"'
+            + f' room')
+        # print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][0]}"' + f' room')
+        print(f"{GameF.ROOM_LEGEND[game_map[GameF.character.pos[1]][GameF.character.pos[0]]][1]}\n")
+        # print(f"{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][1]}\n")
+        # Print available actions
+        print("What do you want to do?")
+        for action in GameF.character.actions:
+            print(action)
+        print("Enter quit to exit the game")
+        choice = input()  # get user choice
+        if choice.capitalize() == "Move":
+            GameModules.move(GameF)
+        # Placeholder functions
+        elif choice.capitalize() == "Search":
+            GameModules.act(GameF)
+        elif choice.capitalize() == "Battle":
+            GameModules.act(GameF)
+        elif choice.capitalize() == "Almanac":
+            pass
+        # capitalize() wont work. Need title()
+        elif choice.title() == "Check Inventory":
+            GameModules.check_inv(GameF)
+        # End Placeholder functions
+        elif choice.capitalize() == "Quit":
+            self.game_quit()
+        else:
+            print("Bad input. Try that again.")
+        print("\n")
+
+
+class Player():
     def __init__(self, name, hp, inventory, bruh_power, pos):
         self.name = name
         self.hp = hp
@@ -22,15 +66,6 @@ class Player:
 """
 Function for saving game state and exiting game
 """
-
-
-def game_quit():
-    data = [player.name, player.hp, player.inventory, player.bruh_power, player.pos]
-    # Write map to file
-    GeneralModules.write_to_file("prevmap", game_map)
-    # Write character state to file
-    GeneralModules.write_to_file("previnv", data)
-    quit()
 
 # Player
 # create GameF object and pass character as argument
@@ -80,37 +115,3 @@ while x:  # Start up loop
         GameModules.move(GameF)  # Give player initial movement
     else:
         print("Bad input. Try again")
-
-
-# Game loop
-while 1:
-    # Print player location
-    print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[GameF.character.pos[1]][GameF.character.pos[0]]][0]}"'
-          + f' room')
-    # print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][0]}"' + f' room')
-    print(f"{GameF.ROOM_LEGEND[game_map[GameF.character.pos[1]][GameF.character.pos[0]]][1]}\n")
-    # print(f"{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][1]}\n")
-    # Print available actions
-    print("What do you want to do?")
-    for action in GameF.character.actions:
-        print(action)
-    print("Enter quit to exit the game")
-    choice = input()  # get user choice
-    if choice.capitalize() == "Move":
-        GameModules.move(GameF)
-    # Placeholder functions
-    elif choice.capitalize() == "Search":
-        GameModules.act(GameF)
-    elif choice.capitalize() == "Battle":
-        GameModules.act(GameF)
-    elif choice.capitalize() == "Almanac":
-        pass
-    # capitalize() wont work. Need title()
-    elif choice.title() == "Check Inventory":
-        GameModules.check_inv(GameF)
-    # End Placeholder functions
-    elif choice.capitalize() == "Quit":
-        game_quit()
-    else:
-        print("Bad input. Try that again.")
-    print("\n")
