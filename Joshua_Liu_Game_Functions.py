@@ -102,6 +102,92 @@ class Map(MapModules):
 
 
 
+class EnemyMovement:
+
+    def __init__(self):
+        self.pool = []
+        self.activated = False
+        self.engaged = None
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
+        self.executor.submit(self.main)
+
+    def main(self):
+        while self.activated is False:
+            self.counter()
+        while self.activated is True:
+            self.counter(self.engaged)
+
+
+
+    def counter(self, eenemy=None):
+        if eenemy == None:
+            for enemy in self.pool:
+                enemy.action()
+        else:
+            eenemy.action()
+
+class Enemy:
+    def __init__(self, stats, position):
+        self.stats = stats
+        self.position = position
+        self.actions = ["Attack", "Defend", "Heal", "Move"]
+        self.hp = stats["HP"]
+        self.actions = stats["Actions"]
+        self.Damage = stats["Damage"]
+        self.activated = False
+
+    def action(self):
+        move = self.actions[randint(0, 4)]
+        if move == "Attack":
+            print("lol")
+        elif move == "Defend":
+            print("rofl")
+        elif move == "Heal":
+            print("lmao")
+        elif move == "Move":
+            print("XD")
+
+    def move(self):
+        return
+
+    def heal(self):
+        return
+
+    def attack(self):
+        return
+
+class Boss(Enemy):
+    def __init__(self, stats, position):
+        super().__init__(stats, position)
+        self.actions = ["Attack", "Super Attack", "Heal", "Defend", "Move"]
+        self.hp = stats["HP"]
+        self.actions = stats["Actions"]
+        self.Damage = stats["Damage"]
+        self.activated = False
+
+    def action(self):
+        move = self.actions[randint(0,5)]
+        self.panic()
+        if move == "Attack":
+            print("lol")
+        elif move == "Defend":
+            print("lol")
+        elif move == "Heal":
+            print("lmao")
+        elif move == "Move":
+            print("XD")
+        elif move == "Super Attack":
+            print("Bruh")
+
+    def super_attack(self):
+        return
+
+    def panic(self):
+        if self.hp < 1:
+            self.super_attack()
+            self.move()
+            self.heal()
+
 
 """
 Class relating to methods and objects of the actual game
@@ -109,94 +195,6 @@ Class relating to methods and objects of the actual game
 
 
 class GameModules:
-
-    class EnemyMovement:
-
-        def __init__(self):
-            self.pool = []
-            self.activated = False
-            self.engaged = None
-            self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
-            self.executor.submit(self.main)
-
-        def main(self):
-            while self.activated is False:
-                self.counter()
-            while self.activated is True:
-                self.counter(self.engaged)
-
-
-
-        def counter(self, eenemy=None):
-            if eenemy == None:
-                for enemy in self.pool:
-                    enemy.action()
-            else:
-                eenemy.action()
-
-    class Enemy:
-        def __init__(self, stats, position):
-            self.stats = stats
-            self.position = position
-            self.actions = ["Attack", "Defend", "Heal", "Move"]
-            self.hp = stats["HP"]
-            self.actions = stats["Actions"]
-            self.Damage = stats["Damage"]
-            self.activated = False
-
-        def action(self):
-            move = self.actions[randint(0, 4)]
-            if move == "Attack":
-                print("lol")
-            elif move == "Defend":
-                print("rofl")
-            elif move == "Heal":
-                print("lmao")
-            elif move == "Move":
-                print("XD")
-
-        def move(self):
-            return
-
-        def heal(self):
-            return
-
-        def attack(self):
-            return
-
-    class Boss(Enemy):
-        def __init__(self, stats, position):
-            super(GameModules.Boss, self).__init__(stats, position)
-            self.actions = ["Attack", "Super Attack", "Heal", "Defend", "Move"]
-            self.hp = stats["HP"]
-            self.actions = stats["Actions"]
-            self.Damage = stats["Damage"]
-            self.activated = False
-
-        def action(self):
-            move = self.actions[randint(0,5)]
-            self.panic()
-            if move == "Attack":
-                print("lol")
-            elif move == "Defend":
-                print("lol")
-            elif move == "Heal":
-                print("lmao")
-            elif move == "Move":
-                print("XD")
-            elif move == "Super Attack":
-                print("Bruh")
-
-        def super_attack(self):
-            return
-
-        def panic(self):
-            if self.hp < 1:
-                self.super_attack()
-                self.move()
-                self.heal()
-
-
 
     class Item:
         def __init__(self, stats, iskey):
@@ -301,8 +299,10 @@ class GameModules:
                 "Damage": 5
             }
         }
+        self.ENEMIESLIST = ["Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"]
         # Player object
         self.character = character
+        self.em = EnemyMovement()
 
     """Printing player actions function. Prints inventory"""
     def act(self):
@@ -317,6 +317,12 @@ class GameModules:
         if len(self.character["Inventory"]) != 0:
             for item in self.character["Inventory"]:
                 print(f"You have a {item}")
+
+    def room(self, room, pos):
+        if room == "Monster Room":
+            self.em.pool.append(Enemy(self.ENEMIES[self.ENEMIESLIST[randint(0, 5)]], pos))
+
+
 
     """Player movement function. Moves player and determines valid input"""
     def move(self):

@@ -21,12 +21,14 @@ class Game:
         quit()
 
     def main(self):
+        room = GameF.ROOM_LEGEND[game_map[GameF.character.pos[1]][GameF.character.pos[0]]][0]
         print(
             f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[GameF.character.pos[1]][GameF.character.pos[0]]][0]}"'
             + f' room')
         # print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][0]}"' + f' room')
         print(f"{GameF.ROOM_LEGEND[game_map[GameF.character.pos[1]][GameF.character.pos[0]]][1]}\n")
         # print(f"{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][1]}\n")
+
         # Print available actions
         print("What do you want to do?")
         for action in GameF.character.actions:
