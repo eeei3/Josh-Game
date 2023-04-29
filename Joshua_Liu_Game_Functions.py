@@ -7,8 +7,11 @@ This is file with functions for Joshua_Liu_Map.py
 
 from random import *
 import pickle
+import time
 import threading
-import concurrent.futures
+
+
+engage = False
 
 
 """
@@ -67,13 +70,17 @@ class MapModules:
     room = [  # Creating the room layout variable
         [randint(1, 5)]
     ]
+    ROOM_LEGEND = [["Index", "Your starting location!"],
+                            ["Treasure Room", "A room with booty!"],
+                            ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
+                            ["Regular Room", "Boring"], ["Boss", "R.I.P"],
+                            ["Exit", "Tataaa!"]]
 
     """
     Function for creating a random map
     """
 
-    @staticmethod
-    def generate_map():
+    def generate_map(self):
         x = 0  # x-coordinate for map
         y = 0  # y-coordinate for map
         # Populating the map with rooms
@@ -94,35 +101,74 @@ class MapModules:
         data = [MapModules.room, GameModules.player_pos]
         return data
 
+    def create_rooms(self):
+        x = 0
+        y = 0
+        map = [[]]
+        while y < MapModules.height:
+            while x < MapModules.length:
+                map[y].append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y]))
+                x += 1
+            map.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y]))
+            y += 1
+        return map
 
-class Map(MapModules):
-    def __init__(self, map):
-        self.map = map
-        self.enemies = {}
 
+class Room:
+    def __init__(self, roomtype, pos):
+        self.roomtype = roomtype
+        self.first = True
+        self.enemie = 0
+        self.enemylist = []
+        self.pos = pos
+
+    def enter_room(self):
+        if self.first is True:
+            if self.roomtype == "Monster Room":
+                EnemyMovement.pool.append(Enemy(GameModules.ENEMIESLIST[randint(0, 5)], self.pos))
+                global engage
+                engage = True
+            elif self.roomtype == "Boss Room":
+                EnemyMovement.pool.append(Enemy(GameModules.BOSSLIST[randint(0, 4)], self.pos))
+                global engage
+                engage = True
+            elif self.roomtype == "Trap Room":
+                return
+            elif self.roomtype == "Regular Room" or self.roomtype == "Index Room":
+                return
+            elif self.roomtype == "Treasure Room":
+                return
+            elif self.roomtype == "Exit":
+                return
+            else:
+                return
+        else:
+            return
 
 
 class EnemyMovement:
+    pool = []
 
     def __init__(self):
-        self.pool = []
-        self.activated = False
+        EnemyMovement.pool = []
+        # self.activated = False
         self.engaged = None
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=2)
-        self.executor.submit(self.main)
+        self.ticks = 0
+        threading.Thread(target=self.main).start()
 
     def main(self):
-        while self.activated is False:
-            self.counter()
-        while self.activated is True:
-            self.counter(self.engaged)
-
-
+        global engage
+        while True:
+            while engage is False:
+                time.sleep(3)
+                self.counter()
+            while engage is True:
+                self.counter(self.engaged)
 
     def counter(self, eenemy=None):
-        if eenemy == None:
-            for enemy in self.pool:
-                enemy.action()
+        if eenemy is None:
+            EnemyMovement.pool[self.ticks].action()
+            self.ticks += 1
         else:
             eenemy.action()
 
@@ -166,7 +212,7 @@ class Boss(Enemy):
         self.activated = False
 
     def action(self):
-        move = self.actions[randint(0,5)]
+        move = self.actions[randint(0, 5)]
         self.panic()
         if move == "Attack":
             print("lol")
@@ -194,7 +240,7 @@ Class relating to methods and objects of the actual game
 """
 
 
-class GameModules:
+class GameModules(object):
 
     class Item:
         def __init__(self, stats, iskey):
@@ -206,6 +252,8 @@ class GameModules:
                 print("You escaped!")
 
     player_pos = None   # Variable for player position
+    ENEMIESLIST = ["Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"]
+    BOSSLIST = ["the Face", "the MOON", "teh epix duck", "Telamon"]
 
     def __init__(self, character):
         GameModules.player_pos = [0, 0]  # Class variable for player position
@@ -299,7 +347,8 @@ class GameModules:
                 "Damage": 5
             }
         }
-        self.ENEMIESLIST = ["Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"]
+        GameModules.ENEMIESLIST = ["Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"]
+        GameModules.BOSSLIST = ["the Face", "the MOON", "teh epix duck", "Telamon"]
         # Player object
         self.character = character
         self.em = EnemyMovement()
@@ -320,7 +369,9 @@ class GameModules:
 
     def room(self, room, pos):
         if room == "Monster Room":
-            self.em.pool.append(Enemy(self.ENEMIES[self.ENEMIESLIST[randint(0, 5)]], pos))
+            enemy = self.ENEMIES[GameModules.ENEMIESLIST[randint(0, 5)]]
+            self.em.engaged = enemy
+            self.em.pool.append(Enemy(self.ENEMIES[GameModules.ENEMIESLIST[randint(0, 5)]], pos))
 
 
 
