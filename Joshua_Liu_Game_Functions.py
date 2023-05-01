@@ -138,29 +138,30 @@ class Room:
 
     def enter(self):
         self.inroom = True
-
-    def enter_room(self):
+        print("Bruh")
+        print(self.roomtype)
         global engage
         if self.first is True:
-            if self.roomtype == "Monster Room":
-                EnemyMovement.pool.append(Enemy(GameModules.ENEMIESLIST[randint(0, 5)], [self.pos[1], self.pos[0]]))
+            if self.roomtype[0] == "Monster Room":
+                print("Entering monster room")
+                EnemyMovement.pool.append(Enemy(GameModules.ENEMIES[GameModules.ENEMIESLIST[randint(0, 4)]], [self.pos[1], self.pos[0]]))
                 engage = True
-            elif self.roomtype == "Boss Room":
-                EnemyMovement.pool.append(Enemy(GameModules.BOSSLIST[randint(0, 4)], [self.pos[1], self.pos[0]]))
+            elif self.roomtype[0] == "Boss Room":
+                print("Entering boss room")
+                EnemyMovement.pool.append(Enemy(GameModules.BOSS[GameModules.BOSSLIST[randint(0, 3)]], [self.pos[1], self.pos[0]]))
                 engage = True
-            elif self.roomtype == "Trap Room":
+            elif self.roomtype[0] == "Trap Room":
                 return
-            elif self.roomtype == "Regular Room" or self.roomtype == "Index Room":
+            elif self.roomtype[0] == "Regular Room" or self.roomtype == "Index Room":
                 return
-            elif self.roomtype == "Treasure Room":
+            elif self.roomtype[0] == "Treasure Room":
                 return
-            elif self.roomtype == "Exit":
+            elif self.roomtype[0] == "Exit":
                 return
             else:
                 return
         else:
             return
-
 
 class EnemyMovement:
     pool = []
@@ -194,12 +195,13 @@ class EnemyMovement:
 class Enemy:
     def __init__(self, stats, position):
         self.stats = stats
+        print(type(self.stats))
         self.position = position
         self.actions = ["Attack", "Defend", "Heal", "Move"]
         self.hp = stats["HP"]
         self.actions = stats["Actions"]
         self.Damage = stats["Damage"]
-        self.activated = False
+        self.activated = True
 
     def action(self):
         move = self.actions[randint(0, 4)]
@@ -221,14 +223,16 @@ class Enemy:
     def attack(self):
         return
 
+
 class Boss(Enemy):
     def __init__(self, stats, position):
         super().__init__(stats, position)
+        print(type(self.stats))
         self.actions = ["Attack", "Super Attack", "Heal", "Defend", "Move"]
-        self.hp = stats["HP"]
-        self.actions = stats["Actions"]
-        self.Damage = stats["Damage"]
-        self.activated = False
+        # self.hp = stats["HP"]
+        # self.actions = stats["Actions"]
+        # self.Damage = stats["Damage"]
+        self.activated = True
 
     def action(self):
         move = self.actions[randint(0, 5)]
@@ -273,6 +277,57 @@ class GameModules:
     player_pos = None   # Variable for player position
     ENEMIESLIST = ["Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"]
     BOSSLIST = ["the Face", "the MOON", "teh epix duck", "Telamon"]
+    # Constant for bosses
+    BOSS = {
+        "the FACE": {
+            "HP": 7,
+            "Actions": ["Bite", "Block", "Parry"],
+            "Damage": 7
+        },
+        "the MOON": {
+            "HP": 12,
+            "Actions": ["Roll", "Block", "Parry"],
+            "Damage": 3
+        },
+        "teh epix duck": {
+            "HP": 25,
+            "Actions": ["Qauck", "Block", "Parry"],
+            "Damage": 6
+        },
+        "Telamon": {
+            "HP": 20,
+            "Actions": ["Stab", "Block", "Parry"],
+            "Damage": 2
+        }
+    }
+    # Constant for enemies
+    ENEMIES = {
+        "Goblina": {
+            "HP": 3,
+            "Actions": ["Swing"],
+            "Damage": 2
+        },
+        "talking ben": {
+            "HP": 1,
+            "Actions": ["Talk"],
+            "Damage": 2
+        },
+        "Jesse": {
+            "HP": 5,
+            "Actions": ["Cook"],
+            "Damage": 3
+        },
+        "Mr. White": {
+            "HP": 6,
+            "Actions": ["Cook"],
+            "Damage": 1
+        },
+        "Anomaly": {
+            "HP": 3,
+            "Actions": ["Scream"],
+            "Damage": 5
+        }
+    }
 
     def __init__(self, character):
         GameModules.player_pos = [0, 0]  # Class variable for player position
@@ -315,59 +370,8 @@ class GameModules:
                 "Desc": "But what does it sayyyyyyy?!?!",
             }
         }
-        # Constant for bosses
-        self.BOSS = {
-            "the FACE": {
-                "HP": 7,
-                "Actions": ["Bite", "Block", "Parry"],
-                "Damage": 7
-            },
-            "the MOON": {
-                "HP": 12,
-                "Actions": ["Roll", "Block", "Parry"],
-                "Damage": 3
-            },
-            "teh epix duck": {
-                "HP": 25,
-                "Actions": ["Qauck", "Block", "Parry"],
-                "Damage": 6
-            },
-            "Telamon": {
-                "HP": 20,
-                "Actions": ["Stab", "Block", "Parry"],
-                "Damage": 2
-            }
-        }
-        # Constant for enemies
-        self.ENEMIES = {
-            "Goblina": {
-                "HP": 3,
-                "Actions": ["Swing"],
-                "Damage": 2
-            },
-            "talking ben": {
-                "HP": 1,
-                "Actions": ["Talk"],
-                "Damage": 2
-            },
-            "Jesse": {
-                "HP": 5,
-                "Actions": ["Cook"],
-                "Damage": 3
-            },
-            "Mr. White": {
-                "HP": 6,
-                "Actions": ["Cook"],
-                "Damage": 1
-            },
-            "Anomaly": {
-                "HP": 3,
-                "Actions": ["Scream"],
-                "Damage": 5
-            }
-        }
-        GameModules.ENEMIESLIST = ["Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"]
-        GameModules.BOSSLIST = ["the Face", "the MOON", "teh epix duck", "Telamon"]
+#        GameModules.ENEMIESLIST = ["Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"]
+#        GameModules.BOSSLIST = ["the Face", "the MOON", "teh epix duck", "Telamon"]
         # Player object
         self.character = character
         self.em = EnemyMovement()
@@ -385,52 +389,3 @@ class GameModules:
         if len(self.character["Inventory"]) != 0:
             for item in self.character["Inventory"]:
                 print(f"You have a {item}")
-
-    def room(self, room, pos):
-        if room == "Monster Room":
-            enemy = self.ENEMIES[GameModules.ENEMIESLIST[randint(0, 5)]]
-            self.em.engaged = enemy
-            self.em.pool.append(Enemy(self.ENEMIES[GameModules.ENEMIESLIST[randint(0, 5)]], pos))
-
-
-
-    """Player movement function. Moves player and determines valid input"""
-    def move(self):
-        x = 0
-        # User input loop
-        while x == 0:
-            print("What do you want to do?")
-            # Copy of DIRECTION list with only valid input
-            temp = self.DIRECTION[::]
-            # Remove invalid dirctions
-            if self.character.pos[0] == 0:
-                temp.remove("left")
-            if self.character.pos[0] == MapModules.length - 1:
-                temp.remove("right")
-            if self.character.pos[1] == MapModules.height - 1:
-                temp.remove("forward")
-            if self.character.pos[1] == 0:
-                temp.remove("back")
-            # Getting user input on direction
-            print("Your options are the following:")
-            for direction in temp:
-                print(direction)
-            print("Enter 'quit' to exit this menu")
-            print("What will you choose?")
-            choice = input()
-            # check if choice is valid
-            if choice not in temp and not choice == "quit":
-                print("invalid choice")
-            elif "quit" in choice:
-                x = 1  # does not exit game, brings user back to previous menu
-            else:
-                x = 1  # breaking loop this way
-                # Seeing what action user chose
-                if choice == "forward":
-                    self.character.pos[1] += 1
-                elif choice == "right":
-                    self.character.pos[0] += 1
-                elif choice == "left":
-                    self.character.pos[0] -= 1
-                elif choice == "back":
-                    self.character.pos[1] -= 1

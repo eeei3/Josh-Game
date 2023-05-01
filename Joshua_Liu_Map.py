@@ -4,7 +4,7 @@ CS 30 Period 1
 April 24, 2023
 This is a text-based game that is programmed with OOP.
 """
-from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules, Room
+from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules, EnemyMovement
 
 engage = False
 
@@ -29,7 +29,6 @@ class Game:
     def move(self):
         x = 0
         # User input loop
-        print(self.world)
         while x == 0:
             print("What do you want to do?")
             # Copy of DIRECTION list with only valid input
@@ -67,13 +66,13 @@ class Game:
                     self.GameF.character.pos[0] -= 1
                 elif choice == "back":
                     self.GameF.character.pos[1] -= 1
-        print(self.world)
         self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].enter()
 
     def start(self):
         x = True
         print("Do you want to load a previous session?")
         print("If you want to, enter previous, or enter new to make a new game")
+        em = EnemyMovement()
         while x:  # Start up loop
             choice = input()  # See what the user wants to do
             if choice.capitalize() == "Previous":
@@ -120,8 +119,11 @@ class Game:
                 self.move()  # Give player initial movement
             else:
                 print("Bad input. Try again")
+        while True:
+            self.main()
 
     def main(self):
+        print(engage)
         # room = self.GameF.ROOM_LEGEND[self.map[self.GameF.character.pos[1]][self.GameF.character.pos[0]]][0]
         print(
             f'You are now in a "' + f'{self.GameF.ROOM_LEGEND[self.map[self.GameF.character.pos[1]][self.GameF.character.pos[0]]][0]}"'
