@@ -104,14 +104,24 @@ class MapModules:
     def create_rooms(self):
         x = 0
         y = 0
-        map = [[]]
+        worlb = []
+        worlbcpy = [[None]]
         while y < MapModules.height:
             while x < MapModules.length:
-                map[y].append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y]))
+                # map[y].append(None)
+                # map[y][x] = Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y])
+                worlb.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y]))
                 x += 1
-            map.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y]))
+            if y == 0:
+                worlbcpy[0] = worlb
+            else:
+                worlbcpy.append(None)
+                worlbcpy[y] = worlb
+            worlb = []
             y += 1
-        return map
+            x = 0
+        type(worlb)
+        return worlbcpy
 
 
 class Room:
@@ -121,16 +131,22 @@ class Room:
         self.enemie = 0
         self.enemylist = []
         self.pos = pos
+        self.inroom = True
+
+    def leave(self):
+        self.inroom = False
+
+    def enter(self):
+        self.inroom = True
 
     def enter_room(self):
+        global engage
         if self.first is True:
             if self.roomtype == "Monster Room":
-                EnemyMovement.pool.append(Enemy(GameModules.ENEMIESLIST[randint(0, 5)], self.pos))
-                global engage
+                EnemyMovement.pool.append(Enemy(GameModules.ENEMIESLIST[randint(0, 5)], [self.pos[1], self.pos[0]]))
                 engage = True
             elif self.roomtype == "Boss Room":
-                EnemyMovement.pool.append(Enemy(GameModules.BOSSLIST[randint(0, 4)], self.pos))
-                global engage
+                EnemyMovement.pool.append(Enemy(GameModules.BOSSLIST[randint(0, 4)], [self.pos[1], self.pos[0]]))
                 engage = True
             elif self.roomtype == "Trap Room":
                 return
@@ -167,8 +183,11 @@ class EnemyMovement:
 
     def counter(self, eenemy=None):
         if eenemy is None:
-            EnemyMovement.pool[self.ticks].action()
-            self.ticks += 1
+            if len(EnemyMovement.pool) == 0:
+                pass
+            else:
+                EnemyMovement.pool[self.ticks].action()
+                self.ticks += 1
         else:
             eenemy.action()
 
@@ -240,7 +259,7 @@ Class relating to methods and objects of the actual game
 """
 
 
-class GameModules(object):
+class GameModules:
 
     class Item:
         def __init__(self, stats, iskey):

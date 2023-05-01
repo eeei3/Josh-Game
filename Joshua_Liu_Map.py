@@ -4,7 +4,9 @@ CS 30 Period 1
 April 24, 2023
 This is a text-based game that is programmed with OOP.
 """
-from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules
+from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules, Room
+
+engage = False
 
 
 class Game:
@@ -22,6 +24,52 @@ class Game:
         GeneralModules.write_to_file("previnv", gdata)
         quit()
 
+    """Player movement function. Moves player and determines valid input"""
+
+    def move(self):
+        x = 0
+        # User input loop
+        print(self.world)
+        while x == 0:
+            print("What do you want to do?")
+            # Copy of DIRECTION list with only valid input
+            temp = self.GameF.DIRECTION[::]
+            # Remove invalid dirctions
+            if self.GameF.character.pos[0] == 0:
+                temp.remove("left")
+            if self.GameF.character.pos[0] == MapModules.length - 1:
+                temp.remove("right")
+            if self.GameF.character.pos[1] == MapModules.height - 1:
+                temp.remove("forward")
+            if self.GameF.character.pos[1] == 0:
+                temp.remove("back")
+            # Getting user input on direction
+            print("Your options are the following:")
+            for direction in temp:
+                print(direction)
+            print("Enter 'quit' to exit this menu")
+            print("What will you choose?")
+            choice = input()
+            # check if choice is valid
+            if choice not in temp and not choice == "quit":
+                print("invalid choice")
+            elif "quit" in choice:
+                x = 1  # does not exit game, brings user back to previous menu
+            else:
+                self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].leave()
+                x = 1  # breaking loop this way
+                # Seeing what action user chose
+                if choice == "forward":
+                    self.GameF.character.pos[1] += 1
+                elif choice == "right":
+                    self.GameF.character.pos[0] += 1
+                elif choice == "left":
+                    self.GameF.character.pos[0] -= 1
+                elif choice == "back":
+                    self.GameF.character.pos[1] -= 1
+        print(self.world)
+        self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].enter()
+
     def start(self):
         x = True
         print("Do you want to load a previous session?")
@@ -31,9 +79,10 @@ class Game:
             if choice.capitalize() == "Previous":
                 try:
                     # Get previous map
-                    game_map = GeneralModules.read_to_file("prevmap", "reload")
+                    self.map = GeneralModules.read_to_file("prevmap", "reload")
                     # Get previous character state
                     prevcharacter = GeneralModules.read_to_file("previnv", "reload")
+                    self.world = prevcharacter[5]
                 except FileNotFoundError:
                     print("Previous save does not exist! Try again")
                     continue
@@ -45,8 +94,8 @@ class Game:
                     player = Player(prevcharacter[0], prevcharacter[1],
                                     prevcharacter[2], prevcharacter[3],
                                     prevcharacter[4])
-                    MapModules.length = len(game_map[0])  # Getting map length
-                    MapModules.height = len(game_map)  # Getting map height
+                    MapModules.length = len(self.map[0])  # Getting map length
+                    MapModules.height = len(self.map)  # Getting map height
                     self.GameF = GameModules(player)
                     x = False  # stop loop
                 finally:
@@ -60,13 +109,15 @@ class Game:
                 data = mapmaker.generate_map()  # generate the map
                 self.map = data[0]
                 player.pos = data[1]
+                print(type(self.world))
                 self.world = mapmaker.create_rooms()
+                print(type(self.world))
                 # Set previous coordinates as current
                 # GameF.character["player_pos"] = GameModules.player_pos
                 self.GameF = GameModules(player)
                 # player.pos = GameModules.player_pos
                 # GameF.character["Name"] = input()
-                GameModules.move(self.GameF)  # Give player initial movement
+                self.move()  # Give player initial movement
             else:
                 print("Bad input. Try again")
 
@@ -76,7 +127,7 @@ class Game:
             f'You are now in a "' + f'{self.GameF.ROOM_LEGEND[self.map[self.GameF.character.pos[1]][self.GameF.character.pos[0]]][0]}"'
             + f' room')
         # print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][0]}"' + f' room')
-        print(f"{self.GameF.ROOM_LEGEND[self.map[self.GameF.character.pos[1]][GameF.character.pos[0]]][1]}\n")
+        print(f"{self.GameF.ROOM_LEGEND[self.map[self.GameF.character.pos[1]][self.GameF.character.pos[0]]][1]}\n")
         # print(f"{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][1]}\n")
 
         # Print available actions
@@ -86,7 +137,7 @@ class Game:
         print("Enter quit to exit the game")
         choice = input()  # get user choice
         if choice.capitalize() == "Move":
-            GameModules.move(self.GameF)
+            self.move()
         # Placeholder functions
         elif choice.capitalize() == "Search":
             GameModules.act(self.GameF)
