@@ -143,12 +143,15 @@ class Room:
         global engage
         if self.first is True:
             if self.roomtype[0] == "Monster Room":
-                print("Entering monster room")
-                EnemyMovement.pool.append(Enemy(GameModules.ENEMIES[GameModules.ENEMIESLIST[randint(0, 4)]], [self.pos[1], self.pos[0]]))
+                enemy = GameModules.ENEMIESLIST[randint(0, 4)]
+                EnemyMovement.pool.append(Enemy(GameModules.ENEMIES[enemy], [self.pos[1], self.pos[0]]))
+                print(f"You have encountered a {enemy}")
                 engage = True
             elif self.roomtype[0] == "Boss Room":
                 print("Entering boss room")
-                EnemyMovement.pool.append(Enemy(GameModules.BOSS[GameModules.BOSSLIST[randint(0, 3)]], [self.pos[1], self.pos[0]]))
+                enemy = GameModules.BOSSLIST[randint(0, 3)]
+                EnemyMovement.pool.append(Enemy(GameModules.BOSS[enemy], [self.pos[1], self.pos[0]]))
+                print(f"You have encountered a {enemy}")
                 engage = True
             elif self.roomtype[0] == "Trap Room":
                 return
@@ -374,7 +377,7 @@ class GameModules:
 #        GameModules.BOSSLIST = ["the Face", "the MOON", "teh epix duck", "Telamon"]
         # Player object
         self.character = character
-        self.em = EnemyMovement()
+        # self.em = EnemyMovement()
 
     """Printing player actions function. Prints inventory"""
     def act(self):
