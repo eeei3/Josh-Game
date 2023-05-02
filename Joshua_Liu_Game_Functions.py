@@ -144,15 +144,21 @@ class Room:
         if self.first is True:
             if self.roomtype[0] == "Monster Room":
                 enemy = GameModules.ENEMIESLIST[randint(0, 4)]
-                EnemyMovement.pool.append(Enemy(GameModules.ENEMIES[enemy], [self.pos[1], self.pos[0]]))
+                # print(f"oooooooo {len(EnemyMovement.pool)}")
+                # print(f"pppppppp {EnemyMovement.number}")
+                EnemyMovement.pool[EnemyMovement.number] = Enemy(enemy, GameModules.ENEMIES[enemy], [self.pos[1], self.pos[0]])
+                EnemyMovement.number += 1
                 print(f"You have encountered a {enemy}")
-                engage = True
+                EnemyMovement.engaged = enemy
+                EnemyMovement.engage = True
             elif self.roomtype[0] == "Boss Room":
                 print("Entering boss room")
                 enemy = GameModules.BOSSLIST[randint(0, 3)]
-                EnemyMovement.pool.append(Enemy(GameModules.BOSS[enemy], [self.pos[1], self.pos[0]]))
+                EnemyMovement.pool[EnemyMovement.number] = Boss(enemy, GameModules.BOSS[enemy], [self.pos[1], self.pos[0]])
+                EnemyMovement.number += 1
                 print(f"You have encountered a {enemy}")
-                engage = True
+                EnemyMovement.engaged = EnemyMovement.pool[EnemyMovement.number]
+                EnemyMovement.engage = True
             elif self.roomtype[0] == "Trap Room":
                 return
             elif self.roomtype[0] == "Regular Room" or self.roomtype == "Index Room":
@@ -166,56 +172,69 @@ class Room:
         else:
             return
 
+
 class EnemyMovement:
     pool = []
+    engaged = None
+    number = 0
+    engage = False
 
     def __init__(self):
-        EnemyMovement.pool = []
+        for i in range(0, 60):
+            EnemyMovement.pool.append(None)
         # self.activated = False
         self.engaged = None
         self.ticks = 0
+        self.playeraction = False
         threading.Thread(target=self.main).start()
 
     def main(self):
-        global engage
         while True:
-            while engage is False:
+            while EnemyMovement.engage is False:
                 time.sleep(3)
                 self.counter()
-            while engage is True:
-                self.counter(self.engaged)
+            while EnemyMovement.engage is True:
+                while self.playeraction is False:
+                    pass
+                if self.playeraction is True:
+                    self.counter(self.engaged)
 
     def counter(self, eenemy=None):
         if eenemy is None:
             if len(EnemyMovement.pool) == 0:
                 pass
             else:
-                EnemyMovement.pool[self.ticks].action()
+                if EnemyMovement.pool[self.ticks] is None:
+                    pass
+                else:
+                    EnemyMovement.pool[self.ticks].action()
                 self.ticks += 1
+                if self.ticks < 60:
+                    self.ticks = 0
         else:
             eenemy.action()
 
 class Enemy:
-    def __init__(self, stats, position):
+    def __init__(self, name, stats, position):
+        self.name = name
         self.stats = stats
-        print(type(self.stats))
+        # print(type(self.stats))
         self.position = position
-        self.actions = ["Attack", "Defend", "Heal", "Move"]
+        # self.actions = ["Attack", "Defend", "Heal", "Move"]
         self.hp = stats["HP"]
         self.actions = stats["Actions"]
         self.Damage = stats["Damage"]
         self.activated = True
 
+    def __str__(self):
+        return self.name
+
     def action(self):
-        move = self.actions[randint(0, 4)]
-        if move == "Attack":
-            print("lol")
-        elif move == "Defend":
-            print("rofl")
-        elif move == "Heal":
-            print("lmao")
-        elif move == "Move":
-            print("XD")
+        # print(f"kkkkk {len(self.actions)}")
+        if randint(1, 5) == randint(1, 5):
+            print(f"{Enemy} used {self.actions}!")
+        else:
+            print(f"{Enemy} failed to attack! Your move!")
 
     def move(self):
         return
@@ -228,8 +247,8 @@ class Enemy:
 
 
 class Boss(Enemy):
-    def __init__(self, stats, position):
-        super().__init__(stats, position)
+    def __init__(self, name,  stats, position):
+        super().__init__(name, stats, position)
         print(type(self.stats))
         self.actions = ["Attack", "Super Attack", "Heal", "Defend", "Move"]
         # self.hp = stats["HP"]
@@ -238,8 +257,8 @@ class Boss(Enemy):
         self.activated = True
 
     def action(self):
-        move = self.actions[randint(0, 5)]
-        self.panic()
+        move = self.actions[randint(0, 4)]
+        # self.panic()
         if move == "Attack":
             print("lol")
         elif move == "Defend":
@@ -294,7 +313,7 @@ class GameModules:
         },
         "teh epix duck": {
             "HP": 25,
-            "Actions": ["Qauck", "Block", "Parry"],
+            "Actions": ["Quack", "Block", "Parry"],
             "Damage": 6
         },
         "Telamon": {
@@ -330,6 +349,18 @@ class GameModules:
             "Actions": ["Scream"],
             "Damage": 5
         }
+    }
+    EACTIONS = {
+        "Cook": 1,
+        "Scream": 2,
+        "Talk": 3,
+        "Swing": 4,
+        "Stab": 5,
+        "Parry": 6,
+        "Bite": 7,
+        "Block": 8,
+        "Roll": 9,
+        "Quack": 10
     }
 
     def __init__(self, character):
@@ -373,11 +404,8 @@ class GameModules:
                 "Desc": "But what does it sayyyyyyy?!?!",
             }
         }
-#        GameModules.ENEMIESLIST = ["Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"]
-#        GameModules.BOSSLIST = ["the Face", "the MOON", "teh epix duck", "Telamon"]
         # Player object
         self.character = character
-        # self.em = EnemyMovement()
 
     """Printing player actions function. Prints inventory"""
     def act(self):

@@ -72,7 +72,6 @@ class Game:
         x = True
         print("Do you want to load a previous session?")
         print("If you want to, enter previous, or enter new to make a new game")
-        em = EnemyMovement()
         while x:  # Start up loop
             choice = input()  # See what the user wants to do
             if choice.capitalize() == "Previous":
@@ -116,13 +115,14 @@ class Game:
                 self.GameF = GameModules(player)
                 # player.pos = GameModules.player_pos
                 # GameF.character["Name"] = input()
-                self.move()  # Give player initial movement
+                # self.move()  # Give player initial movement
             else:
                 print("Bad input. Try again")
         while True:
             self.main()
 
     def main(self):
+        em = EnemyMovement()
         print(engage)
         # room = self.GameF.ROOM_LEGEND[self.map[self.GameF.character.pos[1]][self.GameF.character.pos[0]]][0]
         print(
@@ -139,6 +139,7 @@ class Game:
         print("Enter quit to exit the game")
         choice = input()  # get user choice
         if choice.capitalize() == "Move":
+            em.engaged = False
             self.move()
         # Placeholder functions
         elif choice.capitalize() == "Search":
@@ -155,6 +156,7 @@ class Game:
             self.game_quit(self.GameF)
         else:
             print("Bad input. Try that again.")
+        em.playeraction = True
         print("\n")
 
 
