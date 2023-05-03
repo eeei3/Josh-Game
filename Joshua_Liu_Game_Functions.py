@@ -1,21 +1,26 @@
+"""
+Joshua
+CS 30 Period 1
+March 13, 2023
+These are the methods and classes that the Joshua_Liu_Game.py calls upon
+"""
 from random import *
 import pickle
 
 
-"""
-Class containing general file I/O methods
-"""
-
-
 class GeneralModules:
+    """Class containing general file I/O methods"""
+
     @staticmethod
     def write_to_file(file, content):
+        """Write data to file"""
         with open(file, "wb") as fd:
             pickle.dump(content, fd)  # turning content into byte stream
         return
 
     @staticmethod
     def read_to_file(file, mode):
+        """Read data from file"""
         with open(file, "rb") as fd:
             if mode == "reload":
                 fd.seek(0)
@@ -27,18 +32,15 @@ class GeneralModules:
 
     @staticmethod
     def append_to_file(file, content):
+        """Append data to file"""
         with open(file, "a") as fd:
             fd.write("\n\n/\n\n")
             fd.write(content)
         return
 
 
-"""
-Class containing methods and objects relating to the map
-"""
-
-
 class MapModules:
+    """Class containing methods and objects relating to the map"""
 
     length = randint(4, 6)  # Length of room
     height = randint(4, 6)  # Width of room
@@ -53,6 +55,7 @@ class MapModules:
 
     @staticmethod
     def generate_map():
+        """Create map"""
         x = 0
         y = 0
         while x < MapModules.height:
@@ -72,12 +75,8 @@ class MapModules:
         return MapModules.room
 
 
-"""
-Class relating to methods and objects of the actual game
-"""
-
-
 class GameModules:
+    """Class relating to methods and objects of the actual game"""
 
     def __init__(self, character):
         GameModules.player_pos = [0, 0]  # Player position
@@ -172,22 +171,22 @@ class GameModules:
         # Player
         self.character = character
 
-    """Printing player actions function. Prints inventory"""
     def act(self):
+        """Printing player actions function. Prints inventory"""
         print("Your available actions:")
         for item in self.ITEMS.keys():
             for thing in self.ITEMS[item].keys():
                 print(f'{item}: {thing} {self.ITEMS[item][thing]}')
 
-    """Function for printing player inventory"""
     def check_inv(self):
+        """Function for printing player inventory"""
         print(f"You have {len(self.character['Inventory'])} items in your inventory")
         if len(self.character["Inventory"]) != 0:
             for item in self.character["Inventory"]:
                 print(f"You have a {item}")
 
-    """Player movement function. Moves player and determines valid input"""
     def move(self):
+        """Player movement function. Moves player and determines valid input"""
         x = 0
         # User input loop
         while x == 0:

@@ -10,12 +10,10 @@ from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules
 from random import *
 
 
-"""
-Function for saving game state and exiting game
-"""
-
-
 def game_quit():
+    """
+    Function for saving game state and exiting game
+    """
     # Write map to file
     GeneralModules.write_to_file("prevmap", game_map)
     # Write character state to file
@@ -84,7 +82,7 @@ while 1:
         character["Inventory"].append(itemlist[randint(0, 7)])
         print(f"You found a {character['Inventory'][-1]}!")
     elif choice.capitalize() == "Battle":
-        GameModules.act(GameF)
+        print("There is nothing to fight")
     elif choice.capitalize() == "Almanac":
         pass
     # capitalize() wont work. Need title()
