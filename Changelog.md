@@ -1,3 +1,15 @@
+v3.2
+=
+Joshua_Liu_Game.py
+-
+added - Docstrings
+
+changed - Pep8 Compliance
+
+added - Ability to pick up items
+
+changed - Placeholder text
+
 v3.1
 =
 Joshua_Liu_Map.py
