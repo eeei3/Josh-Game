@@ -7,6 +7,7 @@ allows movement and has a system for enemies and
 inventories alike.
 """
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules
+from random import *
 
 
 """
@@ -79,7 +80,9 @@ while 1:
     if choice.capitalize() == "Move":
         GameModules.move(GameF)
     elif choice.capitalize() == "Search":
-        GameModules.act(GameF)
+        itemlist = list(GameF.ITEMS.keys())
+        character["Inventory"].append(itemlist[randint(0, 7)])
+        print(f"You found a {character['Inventory'][-1]}!")
     elif choice.capitalize() == "Battle":
         GameModules.act(GameF)
     elif choice.capitalize() == "Almanac":
