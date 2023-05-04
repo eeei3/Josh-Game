@@ -101,7 +101,7 @@ class MapModules:
         data = [MapModules.room, GameModules.player_pos]
         return data
 
-    def create_rooms(self):
+    def create_rooms(self, lock):
         x = 0
         y = 0
         worlb = []
@@ -110,7 +110,7 @@ class MapModules:
             while x < MapModules.length:
                 # map[y].append(None)
                 # map[y][x] = Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y])
-                worlb.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y]))
+                worlb.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y], lock))
                 x += 1
             if y == 0:
                 worlbcpy[0] = worlb
@@ -125,40 +125,62 @@ class MapModules:
 
 
 class Room:
-    def __init__(self, roomtype, pos):
-        self.roomtype = roomtype
-        self.first = True
-        self.enemie = 0
-        self.enemylist = []
-        self.pos = pos
-        self.inroom = True
+    def __init__(self, roomtype, pos, lock):
+        self.roomtype = roomtype  # The type of room
+        self.first = True  # Is this the first time the player has been in the room?
+        self.enemie = 0  # Amount of enemies in the room
+        self.enemylist = []  # Which enemies are in the room?
+        self.pos = pos  # Where is the room on the map?
+        self.inroom = True  # Is the player currently in the room?
+        self.lock = lock
 
+    """
+    Function to leave the room
+    """
     def leave(self):
         self.inroom = False
 
+    """
+    Function when entering the room
+    """
     def enter(self):
         self.inroom = True
         print("Bruh")
         print(self.roomtype)
         global engage
         if self.first is True:
+            print(f"You are now in a {self.roomtype[0]}")
+            print(self.roomtype[1])
             if self.roomtype[0] == "Monster Room":
-                enemy = GameModules.ENEMIESLIST[randint(0, 4)]
+                enemyname = GameModules.ENEMIESLIST[randint(0, 4)]
+                enemy = Enemy(enemyname, GameModules.ENEMIES[enemyname], [self.pos[1], self.pos[0]])
+                print(f"You have encountered a {enemy}")
+                if not self.lock.acquire(False):
+                    time.sleep(1)
+                else:
+                    self.lock.acquire(True)
+                    print("Room has aquired lock")
+                    EnemyMovement.engaged = enemy
+                    EnemyMovement.engage = True
+                    self.lock.release()
+                    # time.sleep(2)
                 # print(f"oooooooo {len(EnemyMovement.pool)}")
                 # print(f"pppppppp {EnemyMovement.number}")
-                EnemyMovement.pool[EnemyMovement.number] = Enemy(enemy, GameModules.ENEMIES[enemy], [self.pos[1], self.pos[0]])
+                EnemyMovement.pool[EnemyMovement.number] = enemy
                 EnemyMovement.number += 1
-                print(f"You have encountered a {enemy}")
-                EnemyMovement.engaged = enemy
-                EnemyMovement.engage = True
+                self.enemylist.append(enemy)
+                self.enemie += 1
             elif self.roomtype[0] == "Boss Room":
                 print("Entering boss room")
-                enemy = GameModules.BOSSLIST[randint(0, 3)]
-                EnemyMovement.pool[EnemyMovement.number] = Boss(enemy, GameModules.BOSS[enemy], [self.pos[1], self.pos[0]])
-                EnemyMovement.number += 1
-                print(f"You have encountered a {enemy}")
-                EnemyMovement.engaged = EnemyMovement.pool[EnemyMovement.number]
-                EnemyMovement.engage = True
+                # enemyname = GameModules.BOSSLIST[randint(0, 3)]
+                # enemy = Boss(enemyname, GameModules.BOSS[enemyname], [self.pos[1], self.pos[0]])
+                # EnemyMovement.pool[EnemyMovement.number] = enemy
+                # EnemyMovement.number += 1
+                # self.enemylist.append(enemy)
+                # self.enemie += 1
+                # print(f"You have encountered a {enemy}")
+                # EnemyMovement.engaged = EnemyMovement.pool[EnemyMovement.number]
+                # EnemyMovement.engage = True
             elif self.roomtype[0] == "Trap Room":
                 return
             elif self.roomtype[0] == "Regular Room" or self.roomtype == "Index Room":
@@ -173,46 +195,66 @@ class Room:
             return
 
 
+"""
+Class for Enemy movement
+"""
 class EnemyMovement:
     pool = []
     engaged = None
     number = 0
     engage = False
 
-    def __init__(self):
+    def __init__(self, lock):
         for i in range(0, 60):
             EnemyMovement.pool.append(None)
         # self.activated = False
         self.engaged = None
         self.ticks = 0
-        self.playeraction = False
+        self.playeraction = False  # Is it the player's turn to move?
+        self.lock = lock
         threading.Thread(target=self.main).start()
 
     def main(self):
         while True:
             while EnemyMovement.engage is False:
-                time.sleep(3)
-                self.counter()
+                if not self.lock.acquire(False):
+                    time.sleep(1)
+                else:
+                    self.lock.acquire(True)
+                    # print("Movement loop has aquired lock")
+                    self.counter()
+                    self.lock.release()
+                time.sleep(2)
+                #print("Movement has relinquised lock")
             while EnemyMovement.engage is True:
                 while self.playeraction is False:
                     pass
                 if self.playeraction is True:
-                    self.counter(self.engaged)
+                    if not self.lock.aquire(False):
+                        time.sleep(1)
+                    else:
+                        self.lock.aquire(True)
+                        # print("Movement loop has aquired lock")
+                        print("Player has engaged in battle!")
+                        self.counter(self.engaged)
+                        self.lock.release()
+                    #print("Movement has relinquised lock")
 
     def counter(self, eenemy=None):
-        if eenemy is None:
-            if len(EnemyMovement.pool) == 0:
-                pass
-            else:
-                if EnemyMovement.pool[self.ticks] is None:
+            if eenemy is None:
+                if len(EnemyMovement.pool) == 0:
                     pass
                 else:
-                    EnemyMovement.pool[self.ticks].action()
-                self.ticks += 1
-                if self.ticks < 60:
-                    self.ticks = 0
-        else:
-            eenemy.action()
+                    if EnemyMovement.pool[self.ticks] is None:
+                        pass
+                    else:
+                        EnemyMovement.pool[self.ticks].action()
+                    self.ticks += 1
+                    if self.ticks < 60:
+                        self.ticks = 0
+            else:
+                eenemy.action()
+            time.sleep(2)
 
 class Enemy:
     def __init__(self, name, stats, position):
@@ -227,7 +269,7 @@ class Enemy:
         self.activated = True
 
     def __str__(self):
-        return self.name
+        return f'{self.name}'
 
     def action(self):
         # print(f"kkkkk {len(self.actions)}")

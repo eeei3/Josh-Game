@@ -5,6 +5,8 @@ April 24, 2023
 This is a text-based game that is programmed with OOP.
 """
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules, EnemyMovement
+import threading
+import time
 
 engage = False
 
@@ -14,7 +16,9 @@ class Game:
         self.map = []
         self.world = []
         self.GameF = None
+        self.lock = threading.Lock()
         self.start()
+        self.em = None
 
     def game_quit(self, player):
         gdata = [player.name, player.hp, player.inventory, player.bruh_power, player.pos, self.world]
@@ -108,7 +112,7 @@ class Game:
                 self.map = data[0]
                 player.pos = data[1]
                 print(type(self.world))
-                self.world = mapmaker.create_rooms()
+                self.world = mapmaker.create_rooms(self.lock)
                 print(type(self.world))
                 # Set previous coordinates as current
                 # GameF.character["player_pos"] = GameModules.player_pos
@@ -118,20 +122,18 @@ class Game:
                 # self.move()  # Give player initial movement
             else:
                 print("Bad input. Try again")
+        self.em = EnemyMovement(self.lock)
         while True:
             self.main()
 
     def main(self):
-        em = EnemyMovement()
-        print(engage)
-        # room = self.GameF.ROOM_LEGEND[self.map[self.GameF.character.pos[1]][self.GameF.character.pos[0]]][0]
-        print(
-            f'You are now in a "' + f'{self.GameF.ROOM_LEGEND[self.map[self.GameF.character.pos[1]][self.GameF.character.pos[0]]][0]}"'
-            + f' room')
-        # print(f'You are now in a "' + f'{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][0]}"' + f' room')
-        print(f"{self.GameF.ROOM_LEGEND[self.map[self.GameF.character.pos[1]][self.GameF.character.pos[0]]][1]}\n")
-        # print(f"{GameF.ROOM_LEGEND[game_map[player.pos[1]][player.pos[0]]][1]}\n")
-
+        if EnemyMovement.engage is True:
+            if not self.lock.acquire(False):
+                time.sleep(1)
+            else:
+                self.lock.acquire(True)
+                print("Player aquired lock")
+                self.em.playeraction = True
         # Print available actions
         print("What do you want to do?")
         for action in self.GameF.character.actions:
@@ -139,7 +141,7 @@ class Game:
         print("Enter quit to exit the game")
         choice = input()  # get user choice
         if choice.capitalize() == "Move":
-            em.engaged = False
+            self.em.engaged = False
             self.move()
         # Placeholder functions
         elif choice.capitalize() == "Search":
@@ -156,8 +158,12 @@ class Game:
             self.game_quit(self.GameF)
         else:
             print("Bad input. Try that again.")
-        em.playeraction = True
+        if not self.lock.acquire(False):
+            pass
+        else:
+            self.lock.release()
         print("\n")
+        time.sleep(2)
 
 
 class Player:
