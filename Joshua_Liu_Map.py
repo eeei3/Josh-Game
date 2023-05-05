@@ -17,6 +17,7 @@ class Game:
         self.world = []
         self.GameF = None
         self.lock = threading.Lock()
+        self.event = threading.Event()
         self.start()
         self.em = None
 
@@ -112,7 +113,7 @@ class Game:
                 self.map = data[0]
                 player.pos = data[1]
                 print(type(self.world))
-                self.world = mapmaker.create_rooms(self.lock)
+                self.world = mapmaker.create_rooms(self.lock, self.event)
                 print(type(self.world))
                 # Set previous coordinates as current
                 # GameF.character["player_pos"] = GameModules.player_pos
@@ -122,8 +123,10 @@ class Game:
                 # self.move()  # Give player initial movement
             else:
                 print("Bad input. Try again")
-        self.em = EnemyMovement(self.lock)
+        self.em = EnemyMovement(self.lock, self.event)
         while True:
+            if self.event.is_set():
+                self.event.clear()
             self.main()
 
     def main(self):
@@ -160,8 +163,7 @@ class Game:
             print("Bad input. Try that again.")
         if not self.lock.acquire(False):
             pass
-        else:
-            self.lock.release()
+        self.event.set()
         print("\n")
         time.sleep(2)
 

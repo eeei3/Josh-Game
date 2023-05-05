@@ -101,7 +101,7 @@ class MapModules:
         data = [MapModules.room, GameModules.player_pos]
         return data
 
-    def create_rooms(self, lock):
+    def create_rooms(self, lock, event):
         x = 0
         y = 0
         worlb = []
@@ -110,7 +110,7 @@ class MapModules:
             while x < MapModules.length:
                 # map[y].append(None)
                 # map[y][x] = Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y])
-                worlb.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y], lock))
+                worlb.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y], lock, event))
                 x += 1
             if y == 0:
                 worlbcpy[0] = worlb
@@ -125,7 +125,7 @@ class MapModules:
 
 
 class Room:
-    def __init__(self, roomtype, pos, lock):
+    def __init__(self, roomtype, pos, lock, event):
         self.roomtype = roomtype  # The type of room
         self.first = True  # Is this the first time the player has been in the room?
         self.enemie = 0  # Amount of enemies in the room
@@ -133,6 +133,7 @@ class Room:
         self.pos = pos  # Where is the room on the map?
         self.inroom = True  # Is the player currently in the room?
         self.lock = lock
+        self.event = event
 
     """
     Function to leave the room
@@ -204,7 +205,7 @@ class EnemyMovement:
     number = 0
     engage = False
 
-    def __init__(self, lock):
+    def __init__(self, lock, event):
         for i in range(0, 60):
             EnemyMovement.pool.append(None)
         # self.activated = False
@@ -212,6 +213,7 @@ class EnemyMovement:
         self.ticks = 0
         self.playeraction = False  # Is it the player's turn to move?
         self.lock = lock
+        self.event = event
         threading.Thread(target=self.main).start()
 
     def main(self):
@@ -227,6 +229,7 @@ class EnemyMovement:
                 time.sleep(2)
                 #print("Movement has relinquised lock")
             while EnemyMovement.engage is True:
+                self.event.wait()
                 while self.playeraction is False:
                     pass
                 if self.playeraction is True:
@@ -241,19 +244,19 @@ class EnemyMovement:
                     #print("Movement has relinquised lock")
 
     def counter(self, eenemy=None):
-            if eenemy is None:
-                if len(EnemyMovement.pool) == 0:
+        if eenemy is None:
+            if len(EnemyMovement.pool) == 0:
+                pass
+            else:
+                if EnemyMovement.pool[self.ticks] is None:
                     pass
                 else:
-                    if EnemyMovement.pool[self.ticks] is None:
-                        pass
-                    else:
-                        EnemyMovement.pool[self.ticks].action()
-                    self.ticks += 1
-                    if self.ticks < 60:
-                        self.ticks = 0
-            else:
-                eenemy.action()
+                    EnemyMovement.pool[self.ticks].action()
+                self.ticks += 1
+                if self.ticks < 60:
+                    self.ticks = 0
+        else:
+            eenemy.action()
             time.sleep(2)
 
 class Enemy:
