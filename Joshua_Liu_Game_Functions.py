@@ -75,6 +75,8 @@ class MapModules:
                             ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
                             ["Regular Room", "Boring"], ["Boss", "R.I.P"],
                             ["Exit", "Tataaa!"]]
+    def __init__(self, character):
+        self.character = character
 
     """
     Function for creating a random map
@@ -110,7 +112,7 @@ class MapModules:
             while x < MapModules.length:
                 # map[y].append(None)
                 # map[y][x] = Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y])
-                worlb.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y], lock, event))
+                worlb.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y], lock, event, self.character))
                 x += 1
             if y == 0:
                 worlbcpy[0] = worlb
@@ -125,7 +127,7 @@ class MapModules:
 
 
 class Room:
-    def __init__(self, roomtype, pos, lock, event):
+    def __init__(self, roomtype, pos, lock, event, character):
         self.roomtype = roomtype  # The type of room
         self.first = True  # Is this the first time the player has been in the room?
         self.enemie = 0  # Amount of enemies in the room
@@ -134,36 +136,33 @@ class Room:
         self.inroom = True  # Is the player currently in the room?
         self.lock = lock
         self.event = event
+        self.character = character
 
     """
     Function to leave the room
     """
     def leave(self):
         self.inroom = False
+        EnemyMovement.engaged = None
+        EnemyMovement.engage = False
 
     """
     Function when entering the room
     """
     def enter(self):
         self.inroom = True
-        print("Bruh")
-        print(self.roomtype)
+        # print("Bruh")
+        # print(self.roomtype)
         global engage
         if self.first is True:
             print(f"You are now in a {self.roomtype[0]}")
             print(self.roomtype[1])
             if self.roomtype[0] == "Monster Room":
                 enemyname = GameModules.ENEMIESLIST[randint(0, 4)]
-                enemy = Enemy(enemyname, GameModules.ENEMIES[enemyname], [self.pos[1], self.pos[0]])
+                enemy = Enemy(enemyname, GameModules.ENEMIES[enemyname], [self.pos[1], self.pos[0]], self.character)
                 print(f"You have encountered a {enemy}")
-                if not self.lock.acquire(False):
-                    time.sleep(1)
-                else:
-                    self.lock.acquire(True)
-                    print("Room has aquired lock")
-                    EnemyMovement.engaged = enemy
-                    EnemyMovement.engage = True
-                    self.lock.release()
+                EnemyMovement.engaged = enemy
+                EnemyMovement.engage = True
                     # time.sleep(2)
                 # print(f"oooooooo {len(EnemyMovement.pool)}")
                 # print(f"pppppppp {EnemyMovement.number}")
@@ -171,6 +170,8 @@ class Room:
                 EnemyMovement.number += 1
                 self.enemylist.append(enemy)
                 self.enemie += 1
+                print(EnemyMovement.pool)
+                print(EnemyMovement.engaged)
             elif self.roomtype[0] == "Boss Room":
                 print("Entering boss room")
                 # enemyname = GameModules.BOSSLIST[randint(0, 3)]
@@ -205,45 +206,47 @@ class EnemyMovement:
     number = 0
     engage = False
 
-    def __init__(self, lock, event):
+    def __init__(self, lock, event, event1):
         for i in range(0, 60):
             EnemyMovement.pool.append(None)
         # self.activated = False
-        self.engaged = None
+        # self.engaged = None
         self.ticks = 0
         self.playeraction = False  # Is it the player's turn to move?
         self.lock = lock
         self.event = event
+        self.event1 = event1
         threading.Thread(target=self.main).start()
 
     def main(self):
         while True:
-            while EnemyMovement.engage is False:
-                if not self.lock.acquire(False):
-                    time.sleep(1)
-                else:
-                    self.lock.acquire(True)
-                    # print("Movement loop has aquired lock")
-                    self.counter()
-                    self.lock.release()
-                time.sleep(2)
+            # print("In main")
+            # print(EnemyMovement.engage)
+            # while EnemyMovement.engage is False:
+                # print("Movement loop has aquired lock")
+                # self.event1.wait()
+                # self.counter()
+                # time.sleep(2)
                 #print("Movement has relinquised lock")
             while EnemyMovement.engage is True:
                 self.event.wait()
-                while self.playeraction is False:
-                    pass
-                if self.playeraction is True:
-                    if not self.lock.aquire(False):
-                        time.sleep(1)
-                    else:
-                        self.lock.aquire(True)
+                # while self.playeraction is False:
+                    # pass
+                # if self.playeraction is True:
+                    # if not self.lock.aquire(False):
+                        # time.sleep(1)
+                    # else:
+                        # self.lock.aquire(True)
                         # print("Movement loop has aquired lock")
-                        print("Player has engaged in battle!")
-                        self.counter(self.engaged)
-                        self.lock.release()
+                print("Player has engaged in battle!")
+                self.counter(EnemyMovement.engaged)
+                self.event.clear()
+                        # self.lock.release()
                     #print("Movement has relinquised lock")
 
     def counter(self, eenemy=None):
+        print("In counter!")
+        print(type(eenemy))
         if eenemy is None:
             if len(EnemyMovement.pool) == 0:
                 pass
@@ -251,38 +254,42 @@ class EnemyMovement:
                 if EnemyMovement.pool[self.ticks] is None:
                     pass
                 else:
+                    print(EnemyMovement.pool[self.ticks])
                     EnemyMovement.pool[self.ticks].action()
                 self.ticks += 1
                 if self.ticks < 60:
                     self.ticks = 0
         else:
-            eenemy.action()
-            time.sleep(2)
+            eenemy.move()
+            # time.sleep(2)
 
 class Enemy:
-    def __init__(self, name, stats, position):
+    def __init__(self, name, stats, position, target):
         self.name = name
         self.stats = stats
         # print(type(self.stats))
         self.position = position
         # self.actions = ["Attack", "Defend", "Heal", "Move"]
         self.hp = stats["HP"]
-        self.actions = stats["Actions"]
+        self.action = stats["Actions"]
         self.Damage = stats["Damage"]
         self.activated = True
+        self.target = target
 
     def __str__(self):
         return f'{self.name}'
 
-    def action(self):
+    def move(self):
         # print(f"kkkkk {len(self.actions)}")
         if randint(1, 5) == randint(1, 5):
-            print(f"{Enemy} used {self.actions}!")
+            print(f"{Enemy} used {self.action}!")
+            print(f"You took {self.Damage} damage!")
+            self.target.take_damage(self.Damage)
         else:
             print(f"{Enemy} failed to attack! Your move!")
 
-    def move(self):
-        return
+    # def move(self):
+        # return
 
     def heal(self):
         return
@@ -292,8 +299,8 @@ class Enemy:
 
 
 class Boss(Enemy):
-    def __init__(self, name,  stats, position):
-        super().__init__(name, stats, position)
+    def __init__(self, name,  stats, position, target):
+        super().__init__(name, stats, position, target)
         print(type(self.stats))
         self.actions = ["Attack", "Super Attack", "Heal", "Defend", "Move"]
         # self.hp = stats["HP"]

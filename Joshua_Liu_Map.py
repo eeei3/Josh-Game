@@ -18,6 +18,9 @@ class Game:
         self.GameF = None
         self.lock = threading.Lock()
         self.event = threading.Event()
+        self.event1 = threading.Event()
+        self.event2 = threading.Event()
+        self.event3 = threading.Event()
         self.start()
         self.em = None
 
@@ -28,6 +31,21 @@ class Game:
         # Write character state to file
         GeneralModules.write_to_file("previnv", gdata)
         quit()
+
+
+    def timer(self):
+        self.main()
+        print("Player has finished movement")
+        self.event.set()
+        self.event.clear()
+        self.event1.set()
+        self.event1.clear()
+        self.event2.set()
+        self.event2.clear()
+        self.event3.set()
+        self.event3.clear()
+
+
 
     """Player movement function. Moves player and determines valid input"""
 
@@ -72,6 +90,7 @@ class Game:
                 elif choice == "back":
                     self.GameF.character.pos[1] -= 1
         self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].enter()
+        self.main()
 
     def start(self):
         x = True
@@ -108,7 +127,7 @@ class Game:
                 print("Input your character's name:")  # Get player name
                 name = input()
                 player = Player(name, 5, [], 0, [])
-                mapmaker = MapModules()
+                mapmaker = MapModules(player)
                 data = mapmaker.generate_map()  # generate the map
                 self.map = data[0]
                 player.pos = data[1]
@@ -123,20 +142,12 @@ class Game:
                 # self.move()  # Give player initial movement
             else:
                 print("Bad input. Try again")
-        self.em = EnemyMovement(self.lock, self.event)
+        self.em = EnemyMovement(self.lock, self.event, self.event1)
         while True:
-            if self.event.is_set():
-                self.event.clear()
-            self.main()
+            self.timer()
 
     def main(self):
-        if EnemyMovement.engage is True:
-            if not self.lock.acquire(False):
-                time.sleep(1)
-            else:
-                self.lock.acquire(True)
-                print("Player aquired lock")
-                self.em.playeraction = True
+        print("\n")
         # Print available actions
         print("What do you want to do?")
         for action in self.GameF.character.actions:
@@ -156,16 +167,16 @@ class Game:
         # capitalize() wont work. Need title()
         elif choice.title() == "Check Inventory":
             GameModules.check_inv(self.GameF)
+
+        elif choice.title() == "Checkup":
+            print(f"HP:{self.GameF.character.hp}")
         # End Placeholder functions
         elif choice.capitalize() == "Quit":
             self.game_quit(self.GameF)
         else:
             print("Bad input. Try that again.")
-        if not self.lock.acquire(False):
-            pass
-        self.event.set()
-        print("\n")
-        time.sleep(2)
+        # self.event.set()
+        print("Exitting!")
 
 
 class Player:
@@ -174,8 +185,11 @@ class Player:
         self.hp = hp
         self.inventory = inventory
         self.bruh_power = bruh_power
-        self.actions = ["Search", "Move", "Battle", "Almanac", "Check Inventory"]
+        self.actions = ["Search", "Move", "Battle", "Almanac", "Check Inventory", "Checkup"]
         self.pos = pos
+
+    def take_damage(self, dmg):
+        self.hp -= dmg
 
 
 fungame = Game()
