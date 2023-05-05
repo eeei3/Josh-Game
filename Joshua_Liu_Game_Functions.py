@@ -130,12 +130,12 @@ class Room:
     def __init__(self, roomtype, pos, lock, event, character):
         self.roomtype = roomtype  # The type of room
         self.first = True  # Is this the first time the player has been in the room?
-        self.enemie = 0  # Amount of enemies in the room
-        self.enemylist = []  # Which enemies are in the room?
+        self.enemie = None  # Enemy in room
         self.pos = pos  # Where is the room on the map?
         self.inroom = True  # Is the player currently in the room?
         self.lock = lock
         self.event = event
+        self.items = []
         self.character = character
 
     """
@@ -154,12 +154,14 @@ class Room:
         # print("Bruh")
         # print(self.roomtype)
         global engage
-        if self.first is True:
-            print(f"You are now in a {self.roomtype[0]}")
-            print(self.roomtype[1])
+        if self.first:
+            self.first = False
+            print("You have discovered a new room")
+            print(f"You are now in a {self.roomtype[0]} Room")
+            # print(self.roomtype[1])
             if self.roomtype[0] == "Monster Room":
                 enemyname = GameModules.ENEMIESLIST[randint(0, 4)]
-                enemy = Enemy(enemyname, GameModules.ENEMIES[enemyname], [self.pos[1], self.pos[0]], self.character)
+                enemy = Enemy(enemyname, GameModules.ENEMIES[enemyname], [self.pos[1], self.pos[0]], self.character, EnemyMovement.number)
                 print(f"You have encountered a {enemy}")
                 EnemyMovement.engaged = enemy
                 EnemyMovement.engage = True
@@ -168,8 +170,7 @@ class Room:
                 # print(f"pppppppp {EnemyMovement.number}")
                 EnemyMovement.pool[EnemyMovement.number] = enemy
                 EnemyMovement.number += 1
-                self.enemylist.append(enemy)
-                self.enemie += 1
+                self.enemie = enemy
                 print(EnemyMovement.pool)
                 print(EnemyMovement.engaged)
             elif self.roomtype[0] == "Boss Room":
@@ -194,7 +195,39 @@ class Room:
             else:
                 return
         else:
-            return
+            print(f"You are now in a {self.roomtype[0]} Room")
+            if self.roomtype[0] == "Monster Room":
+                if self.enemie is not None:
+                    if self.enemie.hp > 0:
+                        print(self.enemie.hp)
+                        print(f"You have encountered a {self.enemie}")
+                        EnemyMovement.engaged = self.enemie
+                        EnemyMovement.engage = True
+                    else:
+                        self.enemie = None
+                else:
+                    pass
+            elif self.roomtype[0] == "Boss Room":
+                print("Entering boss room")
+                # enemyname = GameModules.BOSSLIST[randint(0, 3)]
+                # enemy = Boss(enemyname, GameModules.BOSS[enemyname], [self.pos[1], self.pos[0]])
+                # EnemyMovement.pool[EnemyMovement.number] = enemy
+                # EnemyMovement.number += 1
+                # self.enemylist.append(enemy)
+                # self.enemie += 1
+                # print(f"You have encountered a {enemy}")
+                # EnemyMovement.engaged = EnemyMovement.pool[EnemyMovement.number]
+                # EnemyMovement.engage = True
+            elif self.roomtype[0] == "Trap Room":
+                return
+            elif self.roomtype[0] == "Regular Room" or self.roomtype == "Index Room":
+                return
+            elif self.roomtype[0] == "Treasure Room":
+                return
+            elif self.roomtype[0] == "Exit":
+                return
+            else:
+                return
 
 
 """
@@ -248,7 +281,7 @@ class EnemyMovement:
         print("In counter!")
         print(type(eenemy))
         if eenemy is None:
-            if len(EnemyMovement.pool) == 0:
+            """if len(EnemyMovement.pool) == 0:
                 pass
             else:
                 if EnemyMovement.pool[self.ticks] is None:
@@ -258,13 +291,20 @@ class EnemyMovement:
                     EnemyMovement.pool[self.ticks].action()
                 self.ticks += 1
                 if self.ticks < 60:
-                    self.ticks = 0
+                    self.ticks = 0"""
+            print(EnemyMovement.pool)
+            pass
         else:
-            eenemy.move()
+            if eenemy.hp >= 0:
+                eenemy.move()
+            else:
+                print(f"{eenemy} has been defeated")
+                EnemyMovement.pool[self.number] = None
+                EnemyMovement.engage = False
             # time.sleep(2)
 
 class Enemy:
-    def __init__(self, name, stats, position, target):
+    def __init__(self, name, stats, position, target, number):
         self.name = name
         self.stats = stats
         # print(type(self.stats))
@@ -275,6 +315,7 @@ class Enemy:
         self.Damage = stats["Damage"]
         self.activated = True
         self.target = target
+        self.number = number
 
     def __str__(self):
         return f'{self.name}'
@@ -297,10 +338,14 @@ class Enemy:
     def attack(self):
         return
 
+    def take_dmg(self, dmg):
+        self.hp -= dmg
+
+
 
 class Boss(Enemy):
-    def __init__(self, name,  stats, position, target):
-        super().__init__(name, stats, position, target)
+    def __init__(self, name,  stats, position, target, number):
+        super().__init__(name, stats, position, target, number)
         print(type(self.stats))
         self.actions = ["Attack", "Super Attack", "Heal", "Defend", "Move"]
         # self.hp = stats["HP"]
@@ -454,7 +499,12 @@ class GameModules:
             },
             "Key": {
                 "Desc": "But what does it sayyyyyyy?!?!",
-            }
+            },
+            "Fists":
+                {
+                    "Desc": "Good ol fist cuffs",
+                    "Dmg": 2
+                },
         }
         # Player object
         self.character = character
@@ -468,7 +518,7 @@ class GameModules:
 
     """Function for printing player inventory"""
     def check_inv(self):
-        print(f"You have {len(self.character['Inventory'])} items in your inventory")
-        if len(self.character["Inventory"]) != 0:
-            for item in self.character["Inventory"]:
+        print(f"You have {len(self.character.inventory)} items in your inventory")
+        if len(self.character.inventory) != 0:
+            for item in self.character.inventory:
                 print(f"You have a {item}")

@@ -34,16 +34,17 @@ class Game:
 
 
     def timer(self):
-        self.main()
-        print("Player has finished movement")
-        self.event.set()
-        self.event.clear()
-        self.event1.set()
-        self.event1.clear()
-        self.event2.set()
-        self.event2.clear()
-        self.event3.set()
-        self.event3.clear()
+        while True:
+            self.main()
+            print("Player has finished movement")
+            self.event.set()
+            self.event.clear()
+            self.event1.set()
+            self.event1.clear()
+            self.event2.set()
+            self.event2.clear()
+            self.event3.set()
+            self.event3.clear()
 
 
 
@@ -92,6 +93,31 @@ class Game:
         self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].enter()
         self.main()
 
+    def battle(self):
+        if EnemyMovement.engage == False:
+            print("Nothing to battle!")
+            return
+        index = 1
+        loop = True
+        print("You chose to fight back!")
+        print("These are the options that you have:")
+        for item in self.GameF.character.inventory:
+            if "Dmg" in self.GameF.ITEMS[item]:
+                print(f"{index}:  {item}\n{self.GameF.ITEMS[item]['Desc']}")
+                index += 1
+        print("Make your choice!")
+        while loop:
+            choice = input()
+            item = choice.title()
+            if item in self.GameF.character.inventory:
+                EnemyMovement.engaged.take_dmg(self.GameF.ITEMS[item]["Dmg"])
+                print(f"You did {self.GameF.ITEMS[item]['Dmg']} to {EnemyMovement.engaged}")
+                loop = False
+                continue
+            else:
+                print("Bad input! Try again.\n\n")
+
+
     def start(self):
         x = True
         print("Do you want to load a previous session?")
@@ -113,9 +139,8 @@ class Game:
                     print(e)
                     quit()
                 else:
-                    player = Player(prevcharacter[0], prevcharacter[1],
-                                    prevcharacter[2], prevcharacter[3],
-                                    prevcharacter[4])
+                    player = Player(prevcharacter[0], prevcharacter[1], prevcharacter[3],
+                                    prevcharacter[4], inventory=prevcharacter[2])
                     MapModules.length = len(self.map[0])  # Getting map length
                     MapModules.height = len(self.map)  # Getting map height
                     self.GameF = GameModules(player)
@@ -126,7 +151,7 @@ class Game:
                 x = False  # stop loop
                 print("Input your character's name:")  # Get player name
                 name = input()
-                player = Player(name, 5, [], 0, [])
+                player = Player(name, 5, 0, [])
                 mapmaker = MapModules(player)
                 data = mapmaker.generate_map()  # generate the map
                 self.map = data[0]
@@ -161,7 +186,7 @@ class Game:
         elif choice.capitalize() == "Search":
             GameModules.act(self.GameF)
         elif choice.capitalize() == "Battle":
-            GameModules.act(self.GameF)
+            self.battle()
         elif choice.capitalize() == "Almanac":
             pass
         # capitalize() wont work. Need title()
@@ -180,13 +205,17 @@ class Game:
 
 
 class Player:
-    def __init__(self, name, hp, inventory, bruh_power, pos):
+    def __init__(self, name, hp, bruh_power, pos, inventory=None):
         self.name = name
         self.hp = hp
-        self.inventory = inventory
+        self.inventory = ["Fists"]
         self.bruh_power = bruh_power
         self.actions = ["Search", "Move", "Battle", "Almanac", "Check Inventory", "Checkup"]
         self.pos = pos
+        if inventory is None:
+            pass
+        else:
+            self.inventory = inventory
 
     def take_damage(self, dmg):
         self.hp -= dmg
