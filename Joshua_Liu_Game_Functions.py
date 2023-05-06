@@ -183,6 +183,11 @@ class Room:
         EnemyMovement.engaged = None
         EnemyMovement.engage = False
 
+    def trap(self):
+        if randint(1, 7) == randint(1, 7):
+            print("You got hit by a trap!")
+            self.character.take_damage(randint(1, 2))
+
     """
     Function when entering the room
     """
@@ -221,13 +226,23 @@ class Room:
                 # EnemyMovement.engaged = EnemyMovement.pool[EnemyMovement.number]
                 # EnemyMovement.engage = True
             elif self.roomtype[0] == "Trap Room":
-                return
+                self.trap()
             elif self.roomtype[0] == "Regular Room" or self.roomtype == "Index Room":
                 return
             elif self.roomtype[0] == "Treasure Room":
+                # Spawning treasure
                 treasure = randint(0, 8)
-                itemlist = self.ITEMS.keys()
+                itemlist = []
+                for key in self.ITEMS:
+                    itemlist.append(key)
                 self.items.append(itemlist[treasure])
+                # Chance for a second treasure to spawn in
+                if randint(0, 4) == randint(0, 4):
+                    treasure = randint(0, 8)
+                    itemlist = []
+                    for key in self.ITEMS:
+                        itemlist.append(key)
+                    self.items.append(itemlist[treasure])
             elif self.roomtype[0] == "Exit":
                 return
             else:
@@ -255,7 +270,7 @@ class Room:
                 else:
                     self.enemie = None
             elif self.roomtype[0] == "Trap Room":
-                return
+                self.trap()
             elif self.roomtype[0] == "Regular Room" or self.roomtype == "Index Room":
                 return
             elif self.roomtype[0] == "Treasure Room":
@@ -300,17 +315,6 @@ class EnemyMovement:
         # print("In counter!")
         # print(type(eenemy))
         if eenemy is None:
-            """if len(EnemyMovement.pool) == 0:
-                pass
-            else:
-                if EnemyMovement.pool[self.ticks] is None:
-                    pass
-                else:
-                    print(EnemyMovement.pool[self.ticks])
-                    EnemyMovement.pool[self.ticks].action()
-                self.ticks += 1
-                if self.ticks < 60:
-                    self.ticks = 0"""
             print(EnemyMovement.pool)
             pass
         else:
@@ -378,7 +382,7 @@ class Boss(Enemy):
 
     def baction(self):
         self.panic()
-        if randint(1, 10) == randint(1, 10):
+        if randint(1, 5) == randint(1, 5):
             choice = self.actions[randint(0, 4)]
             if choice == "Attack":
                 self.attack()
@@ -387,9 +391,12 @@ class Boss(Enemy):
             elif choice == "Heal":
                 self.heal(randint(4, 6))
             elif choice == "Move":
-                self.roommove()
+                # self.roommove()
+                return
             elif choice == "Super Attack":
-                print("Bruh")
+                self.super_attack()
+        else:
+            print("BOSS failed attack! Strike back!")
 
     def attack(self):
         if randint(1, 3) == randint(1, 3):
@@ -446,7 +453,8 @@ class Boss(Enemy):
                 print(f"{Enemy} failed to attack! Your move!")
 
     def panic(self):
-        if self.hp < 1:
+        if 1 > self.hp > 0:
+            print("The BOSS is unleashing its fury!")
             self.super_attack()
             self.baction()
             self.heal(8)

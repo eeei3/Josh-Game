@@ -8,7 +8,7 @@ import random
 
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules, EnemyMovement
 import threading
-import Joshua_Liu_Message_Queue
+# import Joshua_Liu_Message_Queue
 import time
 
 engage = False
@@ -92,6 +92,7 @@ class Game:
                 elif choice == "back":
                     self.GameF.character.pos[1] -= 1
         self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].enter()
+        self.GameF.character.room = self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]]
         self.main()
 
     def battle(self):
@@ -157,12 +158,14 @@ class Game:
                 data = mapmaker.generate_map()  # generate the map
                 self.map = data[0]
                 player.pos = data[1]
-                print(type(self.world))
+                # print(type(self.world))
                 self.world = mapmaker.create_rooms(self.lock, self.event)
-                print(type(self.world))
+                # print(type(self.world))
                 # Set previous coordinates as current
                 # GameF.character["player_pos"] = GameModules.player_pos
                 self.GameF = GameModules(player)
+                self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].enter()
+                player.room = self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]]
                 # player.pos = GameModules.player_pos
                 # GameF.character["Name"] = input()
                 # self.move()  # Give player initial movement
@@ -173,14 +176,21 @@ class Game:
             self.timer()
 
     def main(self):
+        if self.GameF.character.hp <= 0:
+            print("You died!")
+            quit()
         loop = False
         print("\n")
         # Print available actions
-        print("What do you want to do?")
+        """print("What do you want to do?")
         for action in self.GameF.character.actions:
             print(action)
-        print("Enter quit to exit the game")
+        print("Enter quit to exit the game")"""
         while not loop:
+            print("What do you want to do?")
+            for action in self.GameF.character.actions:
+                print(action)
+            print("Enter quit to exit the game")
             choice = input()  # get user choice
             if choice.capitalize() == "Move":
                 self.em.engaged = False
@@ -188,7 +198,8 @@ class Game:
                 self.move()
             # Placeholder functions
             elif choice.capitalize() == "Search":
-                GameModules.act(self.GameF)
+                self.GameF.character.search()
+                loop = True
             elif choice.capitalize() == "Battle":
                 self.battle()
                 loop = True
@@ -224,9 +235,6 @@ class Player:
     def take_damage(self, dmg):
         self.hp -= dmg
 
-    def add_item(self):
-        return
-
     def check_inv(self):
         print(f"You have {len(self.inventory)} items in your inventory")
         if len(self.inventory) != 0:
@@ -234,11 +242,17 @@ class Player:
                 print(f"You have a {item}")
 
     def search(self):
-        if len(self.room.items) is not 0:
+        if len(self.room.items) != 0:
             if random.randint(1, 5) == random.randint(1, 5):
-                itemnum = random.randint(0, len(self.room.items))
+                itemnum = random.randint(0, len(self.room.items) - 1)
                 print(f"You found an {self.room.items[itemnum]}")
+                print(f"Desc: {self.room.ITEMS[self.room.items[itemnum]]['Desc']}")
                 self.inventory.append(self.room.items[itemnum])
+                self.room.items.pop(itemnum)
+            else:
+                print("You found nothing. Better next time chump!")
+        else:
+            print("You scour the ground, but there isn't even a dust speck to pick up!")
 
 #
 # t1 = threading.Thread(target=)
