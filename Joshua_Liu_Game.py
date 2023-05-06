@@ -7,6 +7,7 @@ This is a text-based game that is programmed with OOP.
 import random
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules, EnemyMovement
 import threading
+import time
 # import Joshua_Liu_Message_Queue
 
 engage = False
@@ -18,44 +19,24 @@ Class for the game
 
 class Game:
     def __init__(self):
-        self.map = []
-        self.world = []
-        self.GameF = None
-        self.lock = threading.Lock()
-        self.event = threading.Event()
-        self.event1 = threading.Event()
-        self.event2 = threading.Event()
-        self.event3 = threading.Event()
-        self.start()
+        self.map = []  # list for simple map (no room objects)
+        self.world = []  # list for map with room objects
+        self.GameF = None  # Variable for object
         self.em = None
+        # Start the game
+        self.start()
 
     """
     Method for handling the player quiting the game
     """
     def game_quit(self, player):
-        gdata = [player.name, player.hp, player.inventory, player.bruh_power, player.pos, self.world]
+        gdata = [player.name, player.hp, player.inventory, player.bruh_power,
+                 player.pos, self.world, self.em.engaged]
         # Write map to file
         GeneralModules.write_to_file("prevmap", self.map)
         # Write character state to file
         GeneralModules.write_to_file("previnv", gdata)
         quit()
-
-    """
-    Method that keeps the other methods running at a consistent time
-    to try and prevent any sort of race conditions or anything like that.
-    """
-    def timer(self):
-        while True:
-            self.main()
-            # print("Player has finished movement")
-            self.event.set()
-            self.event.clear()
-            self.event1.set()
-            self.event1.clear()
-            self.event2.set()
-            self.event2.clear()
-            self.event3.set()
-            self.event3.clear()
 
     """
     Method for handling player movement
@@ -101,19 +82,28 @@ class Game:
                     self.GameF.character.pos[0] -= 1
                 elif choice == "back":
                     self.GameF.character.pos[1] -= 1
+        # Trigger room enter events
         self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].enter()
+        # Set player's current room as this room
         self.GameF.character.room = self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]]
-        self.main()
+        # Give the player an additional move
+        # self.main()
 
     """
     Method for handling combat
     """
+
     def battle(self):
+        # Checking if player has won
+        if GameModules.win:
+            quit()
+        # Check if player can enter combat
         if EnemyMovement.engage is False:
             print("Nothing to battle!")
             return
-        index = 1
-        loop = True
+        index = 1  # number for listing items in inventory
+        loop = True  # Make sure player can make legal move
+        # Giving player their options
         print("You chose to fight back!")
         print("These are the options that you have:")
         for item in self.GameF.character.inventory:
@@ -121,21 +111,28 @@ class Game:
                 print(f"{index}:  {item}\n{self.GameF.ITEMS[item]['Desc']}")
                 index += 1
         print("Make your choice!")
+        # Giving player chance to act
         while loop:
-            choice = input()
+            choice = input()  # Get player input
             item = choice.title()
+            # Checking if input is valid or not
             if item in self.GameF.character.inventory:
+                # Inflicting damage on enemy
                 EnemyMovement.engaged.take_dmg(self.GameF.ITEMS[item]["Dmg"])
                 print(f"You did {self.GameF.ITEMS[item]['Dmg']} to {EnemyMovement.engaged}")
-                if item is "Gilgamesh":
+                if item == "Gilgamesh":  # Checking if player used Gilgamesh
                     print("Gilgamesh is too powerful!")
-                    self.GameF.character.take_damage(1)
-                loop = False
+                    self.GameF.character.take_damage(1)  # Player takes damage
+                loop = False  # Exiting loop
             else:
                 print("Bad input! Try again.\n\n")
 
+    """
+    Method for handling the start of the game
+    """
+
     def start(self):
-        x = True
+        x = True  # Setting start up loop as true
         print("Do you want to load a previous session?")
         print("If you want to, enter previous, or enter new to make a new game")
         while x:  # Start up loop
@@ -173,7 +170,7 @@ class Game:
                 self.map = data[0]
                 player.pos = data[1]
                 # print(type(self.world))
-                self.world = mapmaker.create_rooms(self.lock, self.event)
+                self.world = mapmaker.create_rooms()
                 # print(type(self.world))
                 # Set previous coordinates as current
                 # GameF.character["player_pos"] = GameModules.player_pos
@@ -185,15 +182,17 @@ class Game:
                 # self.move()  # Give player initial movement
             else:
                 print("Bad input. Try again")
-        self.em = EnemyMovement(self.lock, self.event, self.event1)
+        self.em = EnemyMovement()
         while True:
-            self.timer()
+            self.main()
+            if EnemyMovement.engaged:
+                self.em.main()
+
+    """
+    Method for handling player loop
+    """
 
     def main(self):
-        # Checking if the player has died or not
-        if self.GameF.character.hp <= 0:
-            print("You died!")
-            quit()
         # Setting main loop as false so the player
         # To account for player inaction
         loop = False
@@ -208,24 +207,28 @@ class Game:
             # Checking ig user input is valid, and if so, executing on it
             if choice.capitalize() == "Move":
                 self.em.engaged = False
-                loop = True
+                # loop = True
                 self.move()
+                loop = True
             elif choice.capitalize() == "Search":
                 self.GameF.character.search()
                 loop = True
             elif choice.capitalize() == "Battle":
                 self.battle()
                 loop = True
-            elif choice.capitalize() == "Almanac":
-                pass
             # capitalize() wont work. Need title()
             elif choice.title() == "Check Inventory":
                 self.GameF.character.check_inv()
             elif choice.title() == "Checkup":
                 print(f"HP:{self.GameF.character.hp}")
+            elif choice.title() == "Leave Dungeon":
+                if choice.title() in self.GameF.character.actions:
+                    print("exiting")
+                    self.GameF.character.room.exitgame()
+                    quit()
             # End Placeholder functions
             elif choice.capitalize() == "Quit":
-                self.game_quit(self.GameF)
+                self.game_quit(self.GameF.character)
             else:
                 print("Bad input. Try that again.")
 
@@ -241,7 +244,7 @@ class Player:
         self.hp = hp  # Player health
         self.inventory = ["Fists"]  # Initial inventory
         # List of actions player can take
-        self.actions = ["Search", "Move", "Battle", "Almanac", "Check Inventory", "Checkup"]
+        self.actions = ["Search", "Move", "Battle", "Check Inventory", "Checkup"]
         # Player position
         self.pos = pos
         # Room that player is currently in
@@ -259,6 +262,10 @@ class Player:
     """
     def take_damage(self, dmg):
         self.hp -= dmg
+        # Checking if the player has died or not
+        if self.hp <= 0:
+            print("You died!")
+            quit()
 
     """
     Method for handling checking player inventory

@@ -7,7 +7,6 @@ This is file with functions for Joshua_Liu_Game.py
 
 from random import *
 import pickle
-import threading
 
 # Variable checking if enemy is engaged in combat or not
 engage = False
@@ -134,16 +133,14 @@ class MapModules:
     Method for creating map but with room objects
     rather than integers representing rooms
     """
-    def create_rooms(self, lock, event):
+    def create_rooms(self):
         x = 0
         y = 0
         worlb = []
         worlbcpy = [[None]]
         while y < MapModules.height:
             while x < MapModules.length:
-                # map[y].append(None)
-                # map[y][x] = Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y])
-                worlb.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y], lock, event, self.character))
+                worlb.append(Room(MapModules.ROOM_LEGEND[MapModules.room[y][x]], [x, y], self.character))
                 x += 1
             if y == 0:
                 worlbcpy[0] = worlb
@@ -163,14 +160,12 @@ Class for rooms
 
 
 class Room:
-    def __init__(self, roomtype, pos, lock, event, character):
+    def __init__(self, roomtype, pos, character):
         self.roomtype = roomtype  # The type of room
         self.first = True  # Is this the first time the player has been in the room?
         self.enemie = None  # Enemy in room
         self.pos = pos  # Where is the room on the map?
         self.inroom = True  # Is the player currently in the room?
-        self.lock = lock
-        self.event = event
         self.items = []  # What items are in the room?
         self.character = character  # Access to character object
         self.ITEMS = ITEMS  # A list of possible items
@@ -183,7 +178,8 @@ class Room:
         EnemyMovement.engaged = None  # Player no longer engaged
         EnemyMovement.engage = False  # Player is no longer engaged
         # Player no longer satisfies win condition
-        self.character.actions.remove("Leave Dungeon")
+        if "Leave Dungeon" in self.character.actions:
+            self.character.actions.remove("Leave Dungeon")
 
 
     """
@@ -200,6 +196,10 @@ class Room:
         if "Key" in self.character.inventory:
             print("Congratulations! You won!!!")
             print("Now get outta here")
+            GameModules.win = True
+            quit()
+        else:
+            print("You are missing something. Now go look for it.")
 
     """
     Method handling for when entering room
@@ -220,8 +220,6 @@ class Room:
                 EnemyMovement.engaged = enemy
                 # Setting player as engaged
                 EnemyMovement.engage = True
-                # Adding enemy to movement pool
-                EnemyMovement.pool[EnemyMovement.number] = enemy
                 # Incremented amount of enemies in map
                 EnemyMovement.number += 1
                 # Setting enemy in room as this enemy
@@ -237,8 +235,6 @@ class Room:
                 EnemyMovement.engaged = enemy
                 # Setting player as engaged
                 EnemyMovement.engage = True
-                # Adding boss to movement pool
-                EnemyMovement.pool[EnemyMovement.number] = enemy
                 # Incrementing amount of enemies in game
                 EnemyMovement.number += 1
                 # Setting enemy in room as this boss
@@ -265,7 +261,7 @@ class Room:
                         itemlist.append(key)
                     self.items.append(itemlist[treasure])
             # Events for Exit
-            elif self.roomtype[0] == "Exit":
+            elif self.roomtype[0] == "Exit Room":
                 print("You feel a need to be here")
                 self.character.actions.append("Leave Dungeon")
                 return
@@ -324,43 +320,23 @@ Class for Enemy movement
 
 
 class EnemyMovement:
-    pool = []  # List containing all enemy objects
     engaged = None  # Enemy currently engaged in combat with player
     number = 0
     engage = False  # Is the player currently engaged with the enemy?
 
-    def __init__(self, lock, event, event1):
-        for i in range(0, 60):  # Populating list
-            EnemyMovement.pool.append(None)
-        # self.activated = False
-        # self.engaged = None
-        self.ticks = 0
+    def __init__(self):
         self.playeraction = False  # Is it the player's turn to move?
-        self.lock = lock
-        self.event = event
-        self.event1 = event1
-        self.t1 = threading.Thread(target=self.main)  # Enemy thread
-        self.t1.start()
 
     def main(self):
-        while True:
-            while EnemyMovement.engage is True:
-                self.event.wait()
-                print("Player has engaged in battle!")
-                self.counter(EnemyMovement.engaged)
-                self.event.clear()
+        print("Player has engaged in battle!")
+        self.counter(EnemyMovement.engaged)
 
     def counter(self, eenemy=None):
-        if eenemy is None:
-            print(EnemyMovement.pool)
-            pass
+        if eenemy.hp >= 0:
+            eenemy.baction()
         else:
-            if eenemy.hp >= 0:
-                eenemy.baction()
-            else:
-                print(f"{eenemy} has been defeated")
-                EnemyMovement.pool[self.number] = None
-                EnemyMovement.engage = False
+            print(f"{eenemy} has been defeated")
+            EnemyMovement.engage = False
 
 
 """
@@ -416,11 +392,19 @@ class Boss(Enemy):
     def __init__(self, name,  stats, position, target, number):
         super().__init__(name, stats, position, target, number)
         # List of enemy actions options
-        self.actions = ["Attack", "Super Attack", "Heal", "Defend", "Move"]
+        self.actions = ["Attack", "Super Attack", "Heal", "Defend"]
         self.activated = True  # Is the boss active?
         self.blocking = False  # Is the boss blocking attacks?
         self.superattacked = False  # Has the boss super attacked?
-        self.DIRECTION = ["forward", "right", "left", "back"]
+
+    """
+    Method that handles enemy taking damage
+    """
+    def take_dmg(self, dmg):
+        if self.blocking == False:
+            self.hp -= dmg
+        else:
+            print("Boss blocked your attack!")
 
     """
     Method handling boss actions
@@ -428,17 +412,17 @@ class Boss(Enemy):
 
     def baction(self):
         self.panic()
-        if randint(1, 3) == randint(1, 3):
-            choice = self.actions[randint(0, 4)]
+        if randint(1, 2) == randint(1, 2):
+            choice = self.actions[randint(0, 3)]
+            print(choice)
             if choice == "Attack":
                 self.attack()
             elif choice == "Defend":
+                print("Boss is hunkering down!")
                 self.blocking = True
             elif choice == "Heal":
+                print("Boss is rapidly recovering!")
                 self.heal(randint(4, 6))
-            elif choice == "Move":
-                # self.roommove()
-                return
             elif choice == "Super Attack":
                 self.super_attack()
         else:
@@ -449,17 +433,12 @@ class Boss(Enemy):
     """
 
     def attack(self):
-        if randint(1, 3) == randint(1, 3):  # Dice roll to attack
-            print(f"{Enemy} used {self.action}!")
-            print(f"You took {self.Damage} damage!")
-            if self.superattacked:
-                self.target.take_damage(self.Damage//2)
-            else:
-                self.target.take_damage(self.Damage)
+        print(f"{Enemy} used {self.action}!")
+        print(f"You took {self.Damage} damage!")
+        if self.superattacked:
+            self.target.take_damage(self.Damage//2)
         else:
-            print(f"{Enemy} failed to attack! Your move!")
-        return
-
+            self.target.take_damage(self.Damage)
     """
     Method handling boss movement
     """
@@ -519,7 +498,7 @@ Class relating to methods and objects of the actual game
 
 
 class GameModules:
-
+    win = False  # Has the player won yet?
     class Item:
         def __init__(self, stats, iskey):
             self.stats = stats
@@ -531,7 +510,7 @@ class GameModules:
 
     player_pos = None   # Variable for player position
     ENEMIESLIST = ["Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"]
-    BOSSLIST = ["the Face", "the MOON", "teh epix duck", "Telamon"]
+    BOSSLIST = ["the FACE", "the MOON", "teh epix duck", "Telamon"]
     # Constant for bosses
     BOSS = {
         "the FACE": {
