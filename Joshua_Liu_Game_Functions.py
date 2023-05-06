@@ -11,11 +11,13 @@ import pickle
 # Variable checking if enemy is engaged in combat or not
 engage = False
 # Constant for all possible rooms
-ROOM_LEGEND = [["Index", "Your starting location!"],
-                            ["Treasure Room", "A room with booty!"],
-                            ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
-                            ["Regular Room", "Boring"], ["Boss Room", "R.I.P"],
-                            ["Exit Room", "Tataaa!"]]
+ROOM_LEGEND = [
+    ["Index", "Your starting location!"],
+    ["Treasure Room", "A room with booty!"],
+    ["Trap Room", "ITS A TRAP!"],
+    ["Monster Room", "Run in circles! Your life depends on it!"],
+    ["Regular Room", "Boring"], ["Boss Room", "R.I.P"],
+    ["Exit Room", "Tataaa!"]]
 # Constant for all possible items
 ITEMS = {
             "Regular Sword": {
@@ -46,10 +48,9 @@ ITEMS = {
             "Key": {
                 "Desc": "But what does it sayyyyyyy?!?!",
             },
-            "Fists":
-                {
+            "Fists": {
                     "Desc": "Good ol fist cuffs",
-                    "Dmg": 999
+                    "Dmg": 2
                 },
         }
 
@@ -181,7 +182,6 @@ class Room:
         if "Leave Dungeon" in self.character.actions:
             self.character.actions.remove("Leave Dungeon")
 
-
     """
     Method for handling traps
     """
@@ -207,13 +207,15 @@ class Room:
         self.inroom = True  # Setting player as in room
         if self.first:  # Is this the first time player has entered room?
             self.first = False  # No longer first time
-            print("You have discovered a new room")
+            print("\nYou have discovered a new room")
             print(f"You are now in a {self.roomtype[0]}")
             # Events for Monster Room
             if self.roomtype[0] == "Monster Room":
                 # Create random enemy object
                 enemyname = GameModules.ENEMIESLIST[randint(0, 4)]
-                enemy = Enemy(enemyname, GameModules.ENEMIES[enemyname], [self.pos[1], self.pos[0]], self.character, EnemyMovement.number)
+                enemy = Enemy(enemyname, GameModules.ENEMIES[enemyname],
+                              [self.pos[1], self.pos[0]], self.character,
+                              EnemyMovement.number)
                 print(f"You have encountered a {enemy.name}")
                 # Setting player as engaged against enemy
                 EnemyMovement.engaged = enemy
@@ -228,7 +230,9 @@ class Room:
                 print("Entering boss room")
                 # Create random boss object
                 enemyname = GameModules.BOSSLIST[randint(0, 3)]
-                enemy = Boss(enemyname, GameModules.BOSS[enemyname], [self.pos[1], self.pos[0]], self.character, EnemyMovement.number)
+                enemy = Boss(enemyname, GameModules.BOSS[enemyname],
+                             [self.pos[1], self.pos[0]], self.character,
+                             EnemyMovement.number)
                 print(f"You have encountered a {enemy.name}")
                 # Setting player as engaged against boss
                 EnemyMovement.engaged = enemy
@@ -261,7 +265,7 @@ class Room:
                     self.items.append(itemlist[treasure])
             # Events for Exit
             elif self.roomtype[0] == "Exit Room":
-                print("You feel a need to be here")
+                print("\nYou feel a need to be here")
                 self.character.actions.append("Leave Dungeon")
                 return
         # This is NOT the first time player has been in room
@@ -273,7 +277,7 @@ class Room:
                     # Is the enemy dead?
                     if self.enemie.hp > 0:  # No
                         print(self.enemie.hp)
-                        print(f"You have encountered a {self.enemie.name}")
+                        print(f"\nYou have encountered a {self.enemie.name}")
                         EnemyMovement.engaged = self.enemie
                         EnemyMovement.engage = True
                     else:  # Yes
@@ -288,7 +292,7 @@ class Room:
                     # Has the boss in the room died?
                     if self.enemie.hp > 0:  # No
                         print(self.enemie.hp)
-                        print(f"You have encountered a {self.enemie.name}")
+                        print(f"\nYou have encountered a {self.enemie.name}")
                         EnemyMovement.engaged = self.enemie
                         EnemyMovement.engage = True
                     else:  # Yes
@@ -406,14 +410,13 @@ class Boss(Enemy):
         self.panic()
         if randint(1, 2) == randint(1, 2):
             choice = self.actions[randint(0, 3)]
-            print(choice)
             if choice == "Attack":
                 self.attack()
             elif choice == "Defend":
-                print("Boss is hunkering down!")
+                print("\nBoss is hunkering down!")
                 self.blocking = True
             elif choice == "Heal":
-                print("Boss is rapidly recovering!")
+                print("\nBoss is rapidly recovering!")
                 self.heal(randint(4, 6))
             elif choice == "Super Attack":
                 self.super_attack()
@@ -425,7 +428,7 @@ class Boss(Enemy):
     """
 
     def attack(self):
-        print(f"{self.name} used {self.action[0]}!")
+        print(f"\n{self.name} used {self.action[0]}!")
         print(f"You took {self.Damage} damage!")
         if self.superattacked:
             self.target.take_damage(self.Damage//2)
@@ -433,9 +436,9 @@ class Boss(Enemy):
             self.target.take_damage(self.Damage)
 
     def super_attack(self):
-        if self.superattacked:  # Checking if the boss has super attacked or not
+        if self.superattacked:  # Checking if the boss has super attacked
             if randint(1, 9) == randint(1, 9):  # Dice roll to super attack
-                print("BOSS is amping up his attack!")
+                print("\nBOSS is amping up his attack!")
                 print(f"{self.name} used {self.action[0]}!")
                 print(f"You took {self.Damage} damage!")
                 self.target.take_damage(self.Damage * 2)
@@ -444,7 +447,7 @@ class Boss(Enemy):
                 print(f"{self.name} failed to attack! Your move!")
         else:
             if randint(1, 2) == randint(1, 2):  # Dice roll to super attack
-                print("BOSS is amping up his attack!")
+                print("\nBOSS is amping up his attack!")
                 print(f"{self.name} used {self.action[0]}!")
                 print(f"You took {self.Damage} damage!")
                 self.target.take_damage(self.Damage)
@@ -453,7 +456,7 @@ class Boss(Enemy):
 
     def panic(self):
         if 3 > self.hp > 0:  # Checking panic conditions
-            print("The BOSS is unleashing its fury!")
+            print("\nThe BOSS is unleashing its fury!")
             self.super_attack()
             self.baction()
             self.heal(8)
@@ -466,13 +469,14 @@ Class relating to methods and objects of the actual game
 
 class GameModules:
     win = False  # Has the player won yet?
+
     class Item:
         def __init__(self, stats, iskey):
             self.stats = stats
             self.iskey = iskey
 
         def consumekey(self):
-            if self.iskey == True:
+            if self.iskey:
                 print("You escaped!")
 
     player_pos = None   # Variable for player position
@@ -540,13 +544,6 @@ class GameModules:
         self.ITEMS = ITEMS
         # Player object
         self.character = character
-
-    """Printing player actions function. Prints inventory"""
-    def act(self):
-        print("Your available actions:")
-        for item in self.ITEMS.keys():
-            for thing in self.ITEMS[item].keys():
-                print(f'{item}: {thing} {self.ITEMS[item][thing]}')
 
     """Function for printing player inventory"""
     def check_inv(self):
