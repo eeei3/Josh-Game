@@ -371,6 +371,9 @@ class Enemy:
 
 
 class Boss(Enemy):
+    """
+    Class for Bosses
+    """
     def __init__(self, name,  stats, position, target):
         super().__init__(name, stats, position, target)
         # List of enemy actions options
@@ -459,7 +462,8 @@ class Boss(Enemy):
 
 class GameModules:
     """
-    Class relating to methods and objects of the actual game
+    Class for giving Joshua_Liu_Game_Functions access to some
+    of the main file's objects.
     """
 
     player_pos = None   # Variable for player position
