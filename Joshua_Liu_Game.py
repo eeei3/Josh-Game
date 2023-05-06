@@ -85,9 +85,12 @@ class Game:
                 elif choice == "back":
                     self.GameF.character.pos[1] -= 1
         # Trigger room enter events
-        self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].enter()
+        self.world[self.GameF.character.pos[1]]\
+            [self.GameF.character.pos[0]].enter()
         # Set player's current room as this room
-        self.GameF.character.room = self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]]
+        self.GameF.character.room = \
+            self.world[self.GameF.character.pos[1]]\
+                [self.GameF.character.pos[0]]
 
     """
     Method for handling combat
@@ -247,9 +250,7 @@ class Game:
                 print(f"HP:{self.GameF.character.hp}")
             elif choice.title() == "Leave Dungeon":
                 if choice.title() in self.GameF.character.actions:
-                    print("exiting")
                     self.GameF.character.room.exitgame()
-                    quit()
             # End Placeholder functions
             elif choice.capitalize() == "Quit":
                 self.game_quit(self.GameF.character)
