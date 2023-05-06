@@ -1,3 +1,36 @@
+v4.2.3
+=
+Joshua_Liu_Game.py
+-
+fixed - quitting game and resuming
+
+v4.2.2
+=
+~~Joshua_Liu_Map.py~~
+-
+Joshua_Liu_Game.py
+-
+added - combat
+
+added - ability to pick up items
+
+added - win condition
+
+removed - many redundant things
+
+broken - ability to resume game after exit
+
+Joshua_Liu_Game_Functions.py
+-
+added - ability to spawn monsters and bosses
+
+added - objects for each room
+
+added - combat
+
+removed - herobrine
+
+
 v3.2.2
 =
 Joshua_Liu_Map.py

@@ -7,7 +7,7 @@ This is a text-based game that is programmed with OOP.
 import random
 from Joshua_Liu_Game_Functions import MapModules, GameModules, \
     GeneralModules, EnemyMovement
-# import Joshua_Liu_Message_Queue
+
 
 engage = False
 
@@ -30,7 +30,7 @@ class Game:
     """
     def game_quit(self, player):
         gdata = [player.name, player.hp, player.inventory,
-                 player.pos, player.room, self.world, self.em.engaged]
+                 player.pos, player.room, self.em.engaged]
         gmap = [self.world, self.map]
         # Write map to file
         GeneralModules.write_to_file("prevmap", gmap)
@@ -158,17 +158,19 @@ class Game:
         print("Do you want to load a previous session?")
         print("If you want to, enter previous, "
               "or enter new to make a new game")
+        self.em = EnemyMovement()
         while x:  # Start up loop
             choice = input()  # See what the user wants to do
             if choice.capitalize() == "Previous":
                 try:
                     # Get previous map
-                    self.map = \
+                    gmap = \
                         GeneralModules.read_to_file("prevmap", "reload")
+                    self.map = gmap[1]
+                    self.world = gmap[0]
                     # Get previous character state
                     prevcharacter = \
                         GeneralModules.read_to_file("previnv", "reload")
-                    self.world = prevcharacter[5]
                 except FileNotFoundError:
                     print("Previous save does not exist! Try again")
                     continue
@@ -180,6 +182,8 @@ class Game:
                     player = Player(prevcharacter[0], prevcharacter[1],
                                     prevcharacter[3],
                                     inventory=prevcharacter[2])
+                    player.room = prevcharacter[4]
+                    self.em.engaged = prevcharacter[5]
                     MapModules.length = len(self.map[0])  # Getting map length
                     MapModules.height = len(self.map)  # Getting map height
                     self.GameF = GameModules(player)
@@ -203,7 +207,6 @@ class Game:
                     [self.GameF.character.pos[0]]
             else:
                 print("Bad input. Try again")
-        self.em = EnemyMovement()
         self.main()  # Initial movement
         while True:
             # Is player in combat, if so, use combat routine
