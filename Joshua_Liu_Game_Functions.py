@@ -439,31 +439,6 @@ class Boss(Enemy):
             self.target.take_damage(self.Damage//2)
         else:
             self.target.take_damage(self.Damage)
-    """
-    Method handling boss movement
-    """
-
-    def roommove(self):
-        temp = self.DIRECTION[::]
-        if self.position[0] == 0:
-            temp.remove("left")
-        if self.position[0] == MapModules.length - 1:
-            temp.remove("right")
-        if self.position[1] == MapModules.height - 1:
-            temp.remove("forward")
-        if self.position[1] == 0:
-            temp.remove("back")
-
-        choice = temp[randint(0, len(temp)-1)]
-
-        if choice == "forward":
-            self.position[1] += 1
-        elif choice == "right":
-            self.position[0] += 1
-        elif choice == "left":
-            self.position[0] -= 1
-        elif choice == "back":
-            self.position[1] -= 1
 
     def super_attack(self):
         if self.superattacked:  # Checking if the boss has super attacked or not
@@ -561,18 +536,6 @@ class GameModules:
             "Actions": ["Scream"],
             "Damage": 5
         }
-    }
-    EACTIONS = {
-        "Cook": 1,
-        "Scream": 2,
-        "Talk": 3,
-        "Swing": 4,
-        "Stab": 5,
-        "Parry": 6,
-        "Bite": 7,
-        "Block": 8,
-        "Roll": 9,
-        "Quack": 10
     }
 
     def __init__(self, character):

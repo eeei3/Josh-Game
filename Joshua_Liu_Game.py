@@ -110,6 +110,8 @@ class Game:
             if "Dmg" in self.GameF.ITEMS[item]:
                 print(f"{index}:  {item}\n{self.GameF.ITEMS[item]['Desc']}")
                 index += 1
+        if "Shield" in self.GameF.character.inventory:
+            print(f"{index}:  Shield\n{self.GameF.ITEMS['Shield']['Desc']}")
         print("Make your choice!")
         # Giving player chance to act
         while loop:
@@ -117,12 +119,15 @@ class Game:
             item = choice.title()
             # Checking if input is valid or not
             if item in self.GameF.character.inventory:
-                # Inflicting damage on enemy
-                EnemyMovement.engaged.take_dmg(self.GameF.ITEMS[item]["Dmg"])
-                print(f"You did {self.GameF.ITEMS[item]['Dmg']} to {EnemyMovement.engaged}")
-                if item == "Gilgamesh":  # Checking if player used Gilgamesh
-                    print("Gilgamesh is too powerful!")
-                    self.GameF.character.take_damage(1)  # Player takes damage
+                if item == "Shield":
+                    self.GameF.character.blocking = True
+                else:
+                    # Inflicting damage on enemy
+                    EnemyMovement.engaged.take_dmg(self.GameF.ITEMS[item]["Dmg"])
+                    print(f"You did {self.GameF.ITEMS[item]['Dmg']} to {EnemyMovement.engaged}")
+                    if item == "Gilgamesh":  # Checking if player used Gilgamesh
+                        print("Gilgamesh is too powerful!")
+                        self.GameF.character.take_damage(1)  # Player takes damage
                 loop = False  # Exiting loop
             else:
                 print("Bad input! Try again.\n\n")
@@ -242,7 +247,7 @@ class Player:
     def __init__(self, name, hp, pos, inventory=None):
         self.name = name  # Name of player
         self.hp = hp  # Player health
-        self.inventory = ["Fists"]  # Initial inventory
+        self.inventory = ["Fists", "Shield"]  # Initial inventory
         # List of actions player can take
         self.actions = ["Search", "Move", "Battle", "Check Inventory", "Checkup"]
         # Player position
@@ -250,6 +255,7 @@ class Player:
         # Room that player is currently in
         # Also gives player object access to room object
         self.room = None
+        self.blocking = False
         # Checking if Player class was passed an argument for inventory
         # During initialization
         if inventory is None:
@@ -261,11 +267,14 @@ class Player:
     Method for handling player taking damage
     """
     def take_damage(self, dmg):
-        self.hp -= dmg
-        # Checking if the player has died or not
+        if self.blocking == False:
+            self.hp -= dmg
+            # Checking if the player has died or not
         if self.hp <= 0:
             print("You died!")
             quit()
+        else:
+            print("You blocked the attack!")
 
     """
     Method for handling checking player inventory
