@@ -7,7 +7,6 @@ This is file with functions for Joshua_Liu_Game.py
 
 from random import *
 import pickle
-import time
 import threading
 
 
@@ -27,15 +26,15 @@ ITEMS = {
             },
             "Gilgamesh": {
                 "Desc": ":gilgamesh:",
-                "Dmg": 90
+                "Dmg": 40
             },
             "Jerma": {
                 "Desc": "Unleash destruction upon your foes",
-                "Dmg": 35
+                "Dmg": 15
             },
             "Omega Energy Sword": {
                 "Desc": "Super damage!",
-                "Dmg": 20
+                "Dmg": 10
             },
             "Gravity Coil": {
                 "Desc": "boioioioioioioioioioioinnngggg dtdtdtddt",
@@ -171,7 +170,7 @@ class Room:
         self.inroom = True  # Is the player currently in the room?
         self.lock = lock
         self.event = event
-        self.items = [] # What items are on the map?
+        self.items = [] # What items are in the room?
         self.character = character # Access to character object
         self.ITEMS = ITEMS # A list of possible items
 
@@ -248,7 +247,7 @@ class Room:
             else:
                 return
         else:
-            print(f"You are now in a {self.roomtype[0]} Room")
+            print(f"You are now in a {self.roomtype[0]}")
             if self.roomtype[0] == "Monster Room":
                 if self.enemie is not None:
                     if self.enemie.hp > 0:
@@ -269,6 +268,8 @@ class Room:
                     EnemyMovement.engage = True
                 else:
                     self.enemie = None
+                    if randint(1, 4) == 1:
+                        self.items.append(self.ITEMS["Key"])
             elif self.roomtype[0] == "Trap Room":
                 self.trap()
             elif self.roomtype[0] == "Regular Room" or self.roomtype == "Index Room":
@@ -382,7 +383,7 @@ class Boss(Enemy):
 
     def baction(self):
         self.panic()
-        if randint(1, 5) == randint(1, 5):
+        if randint(1, 3) == randint(1, 3):
             choice = self.actions[randint(0, 4)]
             if choice == "Attack":
                 self.attack()

@@ -114,11 +114,12 @@ class Game:
             if item in self.GameF.character.inventory:
                 EnemyMovement.engaged.take_dmg(self.GameF.ITEMS[item]["Dmg"])
                 print(f"You did {self.GameF.ITEMS[item]['Dmg']} to {EnemyMovement.engaged}")
+                if item is "Gilgamesh":
+                    print("Gilgamesh is too powerful!")
+                    self.GameF.character.take_damage(1)
                 loop = False
-                continue
             else:
                 print("Bad input! Try again.\n\n")
-
 
     def start(self):
         x = True
@@ -181,12 +182,8 @@ class Game:
             quit()
         loop = False
         print("\n")
-        # Print available actions
-        """print("What do you want to do?")
-        for action in self.GameF.character.actions:
-            print(action)
-        print("Enter quit to exit the game")"""
         while not loop:
+            # Print available actions
             print("What do you want to do?")
             for action in self.GameF.character.actions:
                 print(action)
