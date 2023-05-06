@@ -2,6 +2,16 @@ v4.2.4
 =
 Joshua_Liu_Game.py
 -
+fixed - ruberic stuff
+
+Joshua_Liu_Game_Functions.py
+-
+fixed - ruberic stuff
+
+v4.2.4
+=
+Joshua_Liu_Game.py
+-
 fixed - pep8
 
 Joshua_Liu_Game_Functions.py

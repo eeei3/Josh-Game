@@ -318,10 +318,8 @@ class EnemyMovement:
     def __init__(self):
         self.playeraction = False  # Is it the player's turn to move?
 
-    def main(self):
-        self.counter(EnemyMovement.engaged)
-
     def counter(self, eenemy=None):
+        """Function in charge of executing enemy action"""
         if eenemy is not None:
             eenemy.baction()
 

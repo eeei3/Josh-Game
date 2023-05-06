@@ -216,7 +216,7 @@ class Game:
             # Is player in combat, if so, use combat routine
             if EnemyMovement.engaged:
                 self.main()
-                self.em.main()
+                self.em.counter(EnemyMovement.engaged)
             # Player is not in combat, proceed as normal
             else:
                 self.main()
