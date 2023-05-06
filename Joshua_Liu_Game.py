@@ -270,7 +270,7 @@ class Player:
     def __init__(self, name, hp, pos, inventory=None):
         self.name = name  # Name of player
         self.hp = hp  # Player health
-        self.inventory = ["Fists", "Shield", "Key"]  # Initial inventory
+        self.inventory = ["Fists"]  # Initial inventory
         # List of actions player can take
         self.actions = ["Search", "Move", "Battle",
                         "Check Inventory", "Checkup"]
