@@ -1,3 +1,13 @@
+v4.2.4
+=
+Joshua_Liu_Game.py
+-
+fixed - pep8
+
+Joshua_Liu_Game_Functions.py
+-
+fixed - pep8
+
 v4.2.3
 =
 Joshua_Liu_Game.py

@@ -49,12 +49,10 @@ ITEMS = {
         }
 
 
-"""
-Class containing general file I/O methods
-"""
-
-
 class GeneralModules:
+    """
+    Class containing general file I/O methods
+    """
 
     @staticmethod
     def write_to_file(file, content):
@@ -241,15 +239,15 @@ class Room:
             # Events for Treasure Room
             elif self.roomtype[0] == "Treasure Room":
                 # Spawning treasure
-                treasure = randint(0, 4)
-                itemlist = []
+                treasure = randint(0, 4)  # index in list
+                itemlist = []  # list of spawnable items
                 for key in self.ITEMS:
                     itemlist.append(key)
                 self.items.append(itemlist[treasure])
                 # Chance for a second treasure to spawn in
                 if randint(0, 4) == 1:
-                    treasure = randint(0, 4)
-                    itemlist = []
+                    treasure = randint(0, 4) # index in list
+                    itemlist = [] # list of spawnable items
                     for key in self.ITEMS:
                         itemlist.append(key)
                     self.items.append(itemlist[treasure])
@@ -525,7 +523,8 @@ class GameModules:
     }
 
     def __init__(self, character):
-        GameModules.player_pos = [0, 0]  # Class variable for player position
+        # Class variable for player position
+        GameModules.player_pos = [0, 0]
         # Constant for directions
         self.DIRECTION = ["forward", "right", "left", "back"]
         # Constant for rooms
@@ -537,7 +536,8 @@ class GameModules:
 
     def check_inv(self):
         """Function for printing player inventory"""
-        print(f"You have {len(self.character.inventory)} items in your inventory")
+        print(f"You have {len(self.character.inventory)} "
+              f"items in your inventory")
         if len(self.character.inventory) != 0:
             for item in self.character.inventory:
                 print(f"You have a {item}")
