@@ -5,13 +5,15 @@ April 24, 2023
 This is a text-based game that is programmed with OOP.
 """
 import random
-
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules, EnemyMovement
 import threading
 # import Joshua_Liu_Message_Queue
-import time
 
 engage = False
+
+"""
+Class for the game
+"""
 
 
 class Game:
@@ -27,6 +29,9 @@ class Game:
         self.start()
         self.em = None
 
+    """
+    Method for handling the player quiting the game
+    """
     def game_quit(self, player):
         gdata = [player.name, player.hp, player.inventory, player.bruh_power, player.pos, self.world]
         # Write map to file
@@ -35,7 +40,10 @@ class Game:
         GeneralModules.write_to_file("previnv", gdata)
         quit()
 
-
+    """
+    Method that keeps the other methods running at a consistent time
+    to try and prevent any sort of race conditions or anything like that.
+    """
     def timer(self):
         while True:
             self.main()
@@ -49,7 +57,9 @@ class Game:
             self.event3.set()
             self.event3.clear()
 
-    """Player movement function. Moves player and determines valid input"""
+    """
+    Method for handling player movement
+    """
 
     def move(self):
         x = 0
@@ -95,8 +105,11 @@ class Game:
         self.GameF.character.room = self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]]
         self.main()
 
+    """
+    Method for handling combat
+    """
     def battle(self):
-        if EnemyMovement.engage == False:
+        if EnemyMovement.engage is False:
             print("Nothing to battle!")
             return
         index = 1
@@ -177,9 +190,12 @@ class Game:
             self.timer()
 
     def main(self):
+        # Checking if the player has died or not
         if self.GameF.character.hp <= 0:
             print("You died!")
             quit()
+        # Setting main loop as false so the player
+        # To account for player inaction
         loop = False
         print("\n")
         while not loop:
@@ -189,11 +205,11 @@ class Game:
                 print(action)
             print("Enter quit to exit the game")
             choice = input()  # get user choice
+            # Checking ig user input is valid, and if so, executing on it
             if choice.capitalize() == "Move":
                 self.em.engaged = False
                 loop = True
                 self.move()
-            # Placeholder functions
             elif choice.capitalize() == "Search":
                 self.GameF.character.search()
                 loop = True
@@ -212,43 +228,66 @@ class Game:
                 self.game_quit(self.GameF)
             else:
                 print("Bad input. Try that again.")
-        # self.event.set()
-        # print("Exitting!")
+
+
+"""
+Class for the player
+"""
 
 
 class Player:
     def __init__(self, name, hp, pos, inventory=None):
-        self.name = name
-        self.hp = hp
-        self.inventory = ["Fists"]
+        self.name = name  # Name of player
+        self.hp = hp  # Player health
+        self.inventory = ["Fists"]  # Initial inventory
+        # List of actions player can take
         self.actions = ["Search", "Move", "Battle", "Almanac", "Check Inventory", "Checkup"]
+        # Player position
         self.pos = pos
+        # Room that player is currently in
+        # Also gives player object access to room object
         self.room = None
+        # Checking if Player class was passed an argument for inventory
+        # During initialization
         if inventory is None:
             pass
         else:
             self.inventory = inventory
 
+    """
+    Method for handling player taking damage
+    """
     def take_damage(self, dmg):
         self.hp -= dmg
 
+    """
+    Method for handling checking player inventory
+    """
     def check_inv(self):
         print(f"You have {len(self.inventory)} items in your inventory")
         if len(self.inventory) != 0:
             for item in self.inventory:
                 print(f"You have a {item}")
 
+    """
+    Method for handling searching rooms for treasure
+    """
     def search(self):
+        # Checking if room has any items at all
         if len(self.room.items) != 0:
-            if random.randint(1, 5) == random.randint(1, 5):
+            # Dice roll to see if player finds anything
+            if random.randint(1, 5) == random.randint(1, 5):  # Success
+                # Index for item that player found
                 itemnum = random.randint(0, len(self.room.items) - 1)
+                # Print item that player found
                 print(f"You found an {self.room.items[itemnum]}")
                 print(f"Desc: {self.room.ITEMS[self.room.items[itemnum]]['Desc']}")
+                # Append item to player inventory
                 self.inventory.append(self.room.items[itemnum])
-                self.room.items.pop(itemnum)
-            else:
+                self.room.items.pop(itemnum)  # Remove item from room
+            else:  # Player found nothing
                 print("You found nothing. Better next time chump!")
-        else:
+        else:  # No items in room
             print("You scour the ground, but there isn't even a dust speck to pick up!")
 
 #
@@ -256,4 +295,4 @@ class Player:
 # t1.start()
 
 
-fungame = Game()
+fungame = Game()  # start the game!
