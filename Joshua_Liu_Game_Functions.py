@@ -2,7 +2,7 @@
 Joshua
 CS 30 Period 1
 March 30, 2023
-This is file with functions for Joshua_Liu_Map.py
+This is file with functions for Joshua_Liu_Game.py
 """
 
 from random import *
@@ -12,7 +12,46 @@ import threading
 
 
 engage = False
-
+ROOM_LEGEND = [["Index", "Your starting location!"],
+                            ["Treasure Room", "A room with booty!"],
+                            ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
+                            ["Regular Room", "Boring"], ["Boss Room", "R.I.P"],
+                            ["Exit Room", "Tataaa!"]]
+ITEMS = {
+            "Regular Sword": {
+                "Desc": "Simple steel",
+                "Dmg": 3
+            },
+            "Shield": {
+                "Desc": "Simple wood",
+            },
+            "Gilgamesh": {
+                "Desc": ":gilgamesh:",
+                "Dmg": 90
+            },
+            "Jerma": {
+                "Desc": "Unleash destruction upon your foes",
+                "Dmg": 35
+            },
+            "Omega Energy Sword": {
+                "Desc": "Super damage!",
+                "Dmg": 20
+            },
+            "Gravity Coil": {
+                "Desc": "boioioioioioioioioioioinnngggg dtdtdtddt",
+            },
+            "Speed Coil": {
+                "Desc": "vrrrrrrrrrrrrooooooooooooooom",
+            },
+            "Key": {
+                "Desc": "But what does it sayyyyyyy?!?!",
+            },
+            "Fists":
+                {
+                    "Desc": "Good ol fist cuffs",
+                    "Dmg": 2
+                },
+        }
 
 """
 Class containing general file I/O methods
@@ -70,11 +109,8 @@ class MapModules:
     room = [  # Creating the room layout variable
         [randint(1, 5)]
     ]
-    ROOM_LEGEND = [["Index", "Your starting location!"],
-                            ["Treasure Room", "A room with booty!"],
-                            ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
-                            ["Regular Room", "Boring"], ["Boss", "R.I.P"],
-                            ["Exit", "Tataaa!"]]
+    ROOM_LEGEND = ROOM_LEGEND
+
     def __init__(self, character):
         self.character = character
 
@@ -135,8 +171,9 @@ class Room:
         self.inroom = True  # Is the player currently in the room?
         self.lock = lock
         self.event = event
-        self.items = []
-        self.character = character
+        self.items = [] # What items are on the map?
+        self.character = character # Access to character object
+        self.ITEMS = ITEMS # A list of possible items
 
     """
     Function to leave the room
@@ -157,7 +194,7 @@ class Room:
         if self.first:
             self.first = False
             print("You have discovered a new room")
-            print(f"You are now in a {self.roomtype[0]} Room")
+            print(f"You are now in a {self.roomtype[0]}")
             # print(self.roomtype[1])
             if self.roomtype[0] == "Monster Room":
                 enemyname = GameModules.ENEMIESLIST[randint(0, 4)]
@@ -165,9 +202,6 @@ class Room:
                 print(f"You have encountered a {enemy}")
                 EnemyMovement.engaged = enemy
                 EnemyMovement.engage = True
-                    # time.sleep(2)
-                # print(f"oooooooo {len(EnemyMovement.pool)}")
-                # print(f"pppppppp {EnemyMovement.number}")
                 EnemyMovement.pool[EnemyMovement.number] = enemy
                 EnemyMovement.number += 1
                 self.enemie = enemy
@@ -175,12 +209,14 @@ class Room:
                 print(EnemyMovement.engaged)
             elif self.roomtype[0] == "Boss Room":
                 print("Entering boss room")
-                # enemyname = GameModules.BOSSLIST[randint(0, 3)]
-                # enemy = Boss(enemyname, GameModules.BOSS[enemyname], [self.pos[1], self.pos[0]])
-                # EnemyMovement.pool[EnemyMovement.number] = enemy
-                # EnemyMovement.number += 1
-                # self.enemylist.append(enemy)
-                # self.enemie += 1
+                enemyname = GameModules.BOSSLIST[randint(0, 3)]
+                enemy = Boss(enemyname, GameModules.BOSS[enemyname], [self.pos[1], self.pos[0]], self.character, EnemyMovement.number)
+                print(f"You have encountered a {enemy}")
+                EnemyMovement.engaged = enemy
+                EnemyMovement.engage = True
+                EnemyMovement.pool[EnemyMovement.number] = enemy
+                EnemyMovement.number += 1
+                self.enemie = enemy
                 # print(f"You have encountered a {enemy}")
                 # EnemyMovement.engaged = EnemyMovement.pool[EnemyMovement.number]
                 # EnemyMovement.engage = True
@@ -189,7 +225,9 @@ class Room:
             elif self.roomtype[0] == "Regular Room" or self.roomtype == "Index Room":
                 return
             elif self.roomtype[0] == "Treasure Room":
-                return
+                treasure = randint(0, 8)
+                itemlist = self.ITEMS.keys()
+                self.items.append(itemlist[treasure])
             elif self.roomtype[0] == "Exit":
                 return
             else:
@@ -209,15 +247,13 @@ class Room:
                     pass
             elif self.roomtype[0] == "Boss Room":
                 print("Entering boss room")
-                # enemyname = GameModules.BOSSLIST[randint(0, 3)]
-                # enemy = Boss(enemyname, GameModules.BOSS[enemyname], [self.pos[1], self.pos[0]])
-                # EnemyMovement.pool[EnemyMovement.number] = enemy
-                # EnemyMovement.number += 1
-                # self.enemylist.append(enemy)
-                # self.enemie += 1
-                # print(f"You have encountered a {enemy}")
-                # EnemyMovement.engaged = EnemyMovement.pool[EnemyMovement.number]
-                # EnemyMovement.engage = True
+                if self.enemie.hp > 0:
+                    print(self.enemie.hp)
+                    print(f"You have encountered a {self.enemie}")
+                    EnemyMovement.engaged = self.enemie
+                    EnemyMovement.engage = True
+                else:
+                    self.enemie = None
             elif self.roomtype[0] == "Trap Room":
                 return
             elif self.roomtype[0] == "Regular Room" or self.roomtype == "Index Room":
@@ -249,37 +285,20 @@ class EnemyMovement:
         self.lock = lock
         self.event = event
         self.event1 = event1
-        threading.Thread(target=self.main).start()
+        self.t1 = threading.Thread(target=self.main)
+        self.t1.start()
 
     def main(self):
         while True:
-            # print("In main")
-            # print(EnemyMovement.engage)
-            # while EnemyMovement.engage is False:
-                # print("Movement loop has aquired lock")
-                # self.event1.wait()
-                # self.counter()
-                # time.sleep(2)
-                #print("Movement has relinquised lock")
             while EnemyMovement.engage is True:
                 self.event.wait()
-                # while self.playeraction is False:
-                    # pass
-                # if self.playeraction is True:
-                    # if not self.lock.aquire(False):
-                        # time.sleep(1)
-                    # else:
-                        # self.lock.aquire(True)
-                        # print("Movement loop has aquired lock")
                 print("Player has engaged in battle!")
                 self.counter(EnemyMovement.engaged)
                 self.event.clear()
-                        # self.lock.release()
-                    #print("Movement has relinquised lock")
 
     def counter(self, eenemy=None):
-        print("In counter!")
-        print(type(eenemy))
+        # print("In counter!")
+        # print(type(eenemy))
         if eenemy is None:
             """if len(EnemyMovement.pool) == 0:
                 pass
@@ -296,7 +315,7 @@ class EnemyMovement:
             pass
         else:
             if eenemy.hp >= 0:
-                eenemy.move()
+                eenemy.baction()
             else:
                 print(f"{eenemy} has been defeated")
                 EnemyMovement.pool[self.number] = None
@@ -318,9 +337,9 @@ class Enemy:
         self.number = number
 
     def __str__(self):
-        return f'{self.name}'
+        return '{self.name}'.format(self=self)
 
-    def move(self):
+    def baction(self):
         # print(f"kkkkk {len(self.actions)}")
         if randint(1, 5) == randint(1, 5):
             print(f"{Enemy} used {self.action}!")
@@ -329,18 +348,19 @@ class Enemy:
         else:
             print(f"{Enemy} failed to attack! Your move!")
 
-    # def move(self):
-        # return
+        if randint(1, 40) == randint(1, 20):
+            print(f"{Enemy} is healing!")
+            self.heal(randint(1, 3))
 
-    def heal(self):
-        return
-
-    def attack(self):
+    def heal(self, amount):
+        self.hp += amount
         return
 
     def take_dmg(self, dmg):
         self.hp -= dmg
 
+    def drop(self):
+        return
 
 
 class Boss(Enemy):
@@ -352,29 +372,84 @@ class Boss(Enemy):
         # self.actions = stats["Actions"]
         # self.Damage = stats["Damage"]
         self.activated = True
+        self.blocking = False
+        self.superattacked = False
+        self.DIRECTION = ["forward", "right", "left", "back"]
 
-    def action(self):
-        move = self.actions[randint(0, 4)]
-        # self.panic()
-        if move == "Attack":
-            print("lol")
-        elif move == "Defend":
-            print("lol")
-        elif move == "Heal":
-            print("lmao")
-        elif move == "Move":
-            print("XD")
-        elif move == "Super Attack":
-            print("Bruh")
+    def baction(self):
+        self.panic()
+        if randint(1, 10) == randint(1, 10):
+            choice = self.actions[randint(0, 4)]
+            if choice == "Attack":
+                self.attack()
+            elif choice == "Defend":
+                self.blocking = True
+            elif choice == "Heal":
+                self.heal(randint(4, 6))
+            elif choice == "Move":
+                self.roommove()
+            elif choice == "Super Attack":
+                print("Bruh")
+
+    def attack(self):
+        if randint(1, 3) == randint(1, 3):
+            print(f"{Enemy} used {self.action}!")
+            print(f"You took {self.Damage} damage!")
+            if self.superattacked:
+                self.target.take_damage(self.Damage//2)
+            else:
+                self.target.take_damage(self.Damage)
+        else:
+            print(f"{Enemy} failed to attack! Your move!")
+        return
+
+    def roommove(self):
+        temp = self.DIRECTION[::]
+        if self.position[0] == 0:
+            temp.remove("left")
+        if self.position[0] == MapModules.length - 1:
+            temp.remove("right")
+        if self.position[1] == MapModules.height - 1:
+            temp.remove("forward")
+        if self.position[1] == 0:
+            temp.remove("back")
+
+        choice = temp[randint(0, len(temp)-1)]
+
+        if choice == "forward":
+            self.position[1] += 1
+        elif choice == "right":
+            self.position[0] += 1
+        elif choice == "left":
+            self.position[0] -= 1
+        elif choice == "back":
+            self.position[1] -= 1
 
     def super_attack(self):
-        return
+        if self.superattacked:
+            if randint(1, 9) == randint(1, 9):
+                print("BOSS is amping up his attack!")
+                print(f"{Enemy} used {self.action}!")
+                print(f"You took {self.Damage} damage!")
+                self.target.take_damage(self.Damage * 2)
+                self.superattacked = True
+            else:
+                print(f"{Enemy} failed to attack! Your move!")
+        else:
+            if randint(1, 2) == randint(1, 2):
+                print("BOSS is amping up his attack!")
+                print(f"{Enemy} used {self.action}!")
+                print(f"You took {self.Damage} damage!")
+                self.target.take_damage(self.Damage * 2)
+                self.superattacked = True
+            else:
+                print(f"{Enemy} failed to attack! Your move!")
 
     def panic(self):
         if self.hp < 1:
             self.super_attack()
-            self.move()
-            self.heal()
+            self.baction()
+            self.heal(8)
 
 
 """
@@ -400,22 +475,22 @@ class GameModules:
     BOSS = {
         "the FACE": {
             "HP": 7,
-            "Actions": ["Bite", "Block", "Parry"],
+            "Actions": ["Bite", "Parry"],
             "Damage": 7
         },
         "the MOON": {
             "HP": 12,
-            "Actions": ["Roll", "Block", "Parry"],
+            "Actions": ["Roll", "Parry"],
             "Damage": 3
         },
         "teh epix duck": {
             "HP": 25,
-            "Actions": ["Quack", "Block", "Parry"],
+            "Actions": ["Quack", "Parry"],
             "Damage": 6
         },
         "Telamon": {
             "HP": 20,
-            "Actions": ["Stab", "Block", "Parry"],
+            "Actions": ["Stab", "Parry"],
             "Damage": 2
         }
     }
@@ -465,47 +540,9 @@ class GameModules:
         # Constant for directions
         self.DIRECTION = ["forward", "right", "left", "back"]
         # Constant for rooms
-        self.ROOM_LEGEND = [["Index", "Your starting location!"],
-                            ["Treasure Room", "A room with booty!"],
-                            ["Trap Room", "ITS A TRAP!"], ["Monster Room", "Run in circles! Your life depends on it!"],
-                            ["Regular Room", "Boring"], ["Boss", "R.I.P"],
-                            ["Exit", "Tataaa!"]]
+        self.ROOM_LEGEND = ROOM_LEGEND
         # Constant for items available
-        self.ITEMS = {
-            "Regular Sword": {
-                "Desc": "Simple steel",
-                "Dmg": 3
-            },
-            "Shield": {
-                "Desc": "Simple wood",
-            },
-            "Gilgamesh": {
-                "Desc": ":gilgamesh:",
-                "Dmg": 90
-            },
-            "Jerma": {
-                "Desc": "Unleash destruction upon your foes",
-                "Dmg": 35
-            },
-            "Omega Energy Sword": {
-                "Desc": "Super damage!",
-                "Dmg": 20
-            },
-            "Gravity Coil": {
-                "Desc": "boioioioioioioioioioioinnngggg dtdtdtddt",
-            },
-            "Speed Coil": {
-                "Desc": "vrrrrrrrrrrrrooooooooooooooom",
-            },
-            "Key": {
-                "Desc": "But what does it sayyyyyyy?!?!",
-            },
-            "Fists":
-                {
-                    "Desc": "Good ol fist cuffs",
-                    "Dmg": 2
-                },
-        }
+        self.ITEMS = ITEMS
         # Player object
         self.character = character
 

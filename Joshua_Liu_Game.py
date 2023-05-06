@@ -4,8 +4,11 @@ CS 30 Period 1
 April 24, 2023
 This is a text-based game that is programmed with OOP.
 """
+import random
+
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules, EnemyMovement
 import threading
+import Joshua_Liu_Message_Queue
 import time
 
 engage = False
@@ -36,7 +39,7 @@ class Game:
     def timer(self):
         while True:
             self.main()
-            print("Player has finished movement")
+            # print("Player has finished movement")
             self.event.set()
             self.event.clear()
             self.event1.set()
@@ -45,8 +48,6 @@ class Game:
             self.event2.clear()
             self.event3.set()
             self.event3.clear()
-
-
 
     """Player movement function. Moves player and determines valid input"""
 
@@ -140,7 +141,7 @@ class Game:
                     quit()
                 else:
                     player = Player(prevcharacter[0], prevcharacter[1], prevcharacter[3],
-                                    prevcharacter[4], inventory=prevcharacter[2])
+                                    inventory=prevcharacter[2])
                     MapModules.length = len(self.map[0])  # Getting map length
                     MapModules.height = len(self.map)  # Getting map height
                     self.GameF = GameModules(player)
@@ -151,7 +152,7 @@ class Game:
                 x = False  # stop loop
                 print("Input your character's name:")  # Get player name
                 name = input()
-                player = Player(name, 5, 0, [])
+                player = Player(name, 5, [])
                 mapmaker = MapModules(player)
                 data = mapmaker.generate_map()  # generate the map
                 self.map = data[0]
@@ -172,46 +173,49 @@ class Game:
             self.timer()
 
     def main(self):
+        loop = False
         print("\n")
         # Print available actions
         print("What do you want to do?")
         for action in self.GameF.character.actions:
             print(action)
         print("Enter quit to exit the game")
-        choice = input()  # get user choice
-        if choice.capitalize() == "Move":
-            self.em.engaged = False
-            self.move()
-        # Placeholder functions
-        elif choice.capitalize() == "Search":
-            GameModules.act(self.GameF)
-        elif choice.capitalize() == "Battle":
-            self.battle()
-        elif choice.capitalize() == "Almanac":
-            pass
-        # capitalize() wont work. Need title()
-        elif choice.title() == "Check Inventory":
-            GameModules.check_inv(self.GameF)
-
-        elif choice.title() == "Checkup":
-            print(f"HP:{self.GameF.character.hp}")
-        # End Placeholder functions
-        elif choice.capitalize() == "Quit":
-            self.game_quit(self.GameF)
-        else:
-            print("Bad input. Try that again.")
+        while not loop:
+            choice = input()  # get user choice
+            if choice.capitalize() == "Move":
+                self.em.engaged = False
+                loop = True
+                self.move()
+            # Placeholder functions
+            elif choice.capitalize() == "Search":
+                GameModules.act(self.GameF)
+            elif choice.capitalize() == "Battle":
+                self.battle()
+                loop = True
+            elif choice.capitalize() == "Almanac":
+                pass
+            # capitalize() wont work. Need title()
+            elif choice.title() == "Check Inventory":
+                self.GameF.character.check_inv()
+            elif choice.title() == "Checkup":
+                print(f"HP:{self.GameF.character.hp}")
+            # End Placeholder functions
+            elif choice.capitalize() == "Quit":
+                self.game_quit(self.GameF)
+            else:
+                print("Bad input. Try that again.")
         # self.event.set()
-        print("Exitting!")
+        # print("Exitting!")
 
 
 class Player:
-    def __init__(self, name, hp, bruh_power, pos, inventory=None):
+    def __init__(self, name, hp, pos, inventory=None):
         self.name = name
         self.hp = hp
         self.inventory = ["Fists"]
-        self.bruh_power = bruh_power
         self.actions = ["Search", "Move", "Battle", "Almanac", "Check Inventory", "Checkup"]
         self.pos = pos
+        self.room = None
         if inventory is None:
             pass
         else:
@@ -219,6 +223,26 @@ class Player:
 
     def take_damage(self, dmg):
         self.hp -= dmg
+
+    def add_item(self):
+        return
+
+    def check_inv(self):
+        print(f"You have {len(self.inventory)} items in your inventory")
+        if len(self.inventory) != 0:
+            for item in self.inventory:
+                print(f"You have a {item}")
+
+    def search(self):
+        if len(self.room.items) is not 0:
+            if random.randint(1, 5) == random.randint(1, 5):
+                itemnum = random.randint(0, len(self.room.items))
+                print(f"You found an {self.room.items[itemnum]}")
+                self.inventory.append(self.room.items[itemnum])
+
+#
+# t1 = threading.Thread(target=)
+# t1.start()
 
 
 fungame = Game()
