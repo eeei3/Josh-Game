@@ -49,7 +49,7 @@ ITEMS = {
             "Fists":
                 {
                     "Desc": "Good ol fist cuffs",
-                    "Dmg": 2
+                    "Dmg": 999
                 },
         }
 
@@ -196,7 +196,6 @@ class Room:
         if "Key" in self.character.inventory:
             print("Congratulations! You won!!!")
             print("Now get outta here")
-            GameModules.win = True
             quit()
         else:
             print("You are missing something. Now go look for it.")
@@ -215,7 +214,7 @@ class Room:
                 # Create random enemy object
                 enemyname = GameModules.ENEMIESLIST[randint(0, 4)]
                 enemy = Enemy(enemyname, GameModules.ENEMIES[enemyname], [self.pos[1], self.pos[0]], self.character, EnemyMovement.number)
-                print(f"You have encountered a {enemy}")
+                print(f"You have encountered a {enemy.name}")
                 # Setting player as engaged against enemy
                 EnemyMovement.engaged = enemy
                 # Setting player as engaged
@@ -230,7 +229,7 @@ class Room:
                 # Create random boss object
                 enemyname = GameModules.BOSSLIST[randint(0, 3)]
                 enemy = Boss(enemyname, GameModules.BOSS[enemyname], [self.pos[1], self.pos[0]], self.character, EnemyMovement.number)
-                print(f"You have encountered a {enemy}")
+                print(f"You have encountered a {enemy.name}")
                 # Setting player as engaged against boss
                 EnemyMovement.engaged = enemy
                 # Setting player as engaged
@@ -254,7 +253,7 @@ class Room:
                     itemlist.append(key)
                 self.items.append(itemlist[treasure])
                 # Chance for a second treasure to spawn in
-                if randint(0, 4) == randint(0, 4):
+                if randint(0, 4) == 1:
                     treasure = randint(0, 8)
                     itemlist = []
                     for key in self.ITEMS:
@@ -274,7 +273,7 @@ class Room:
                     # Is the enemy dead?
                     if self.enemie.hp > 0:  # No
                         print(self.enemie.hp)
-                        print(f"You have encountered a {self.enemie}")
+                        print(f"You have encountered a {self.enemie.name}")
                         EnemyMovement.engaged = self.enemie
                         EnemyMovement.engage = True
                     else:  # Yes
@@ -289,14 +288,12 @@ class Room:
                     # Has the boss in the room died?
                     if self.enemie.hp > 0:  # No
                         print(self.enemie.hp)
-                        print(f"You have encountered a {self.enemie}")
+                        print(f"You have encountered a {self.enemie.name}")
                         EnemyMovement.engaged = self.enemie
                         EnemyMovement.engage = True
                     else:  # Yes
                         del self.enemie  # Deleting boss object
                         self.enemie = None
-                        if randint(1, 4) == 1:
-                            self.items.append(self.ITEMS["Key"])
             # Events for Trap Room
             elif self.roomtype[0] == "Trap Room":
                 self.trap()
@@ -328,15 +325,11 @@ class EnemyMovement:
         self.playeraction = False  # Is it the player's turn to move?
 
     def main(self):
-        print("Player has engaged in battle!")
         self.counter(EnemyMovement.engaged)
 
     def counter(self, eenemy=None):
-        if eenemy.hp >= 0:
+        if eenemy is not None:
             eenemy.baction()
-        else:
-            print(f"{eenemy} has been defeated")
-            EnemyMovement.engage = False
 
 
 """
@@ -352,26 +345,23 @@ class Enemy:
         self.hp = stats["HP"]  # Enemy HP
         self.action = stats["Actions"]  # Enemy attack
         self.Damage = stats["Damage"]  # Enemy damage
-        self.activated = True  # Is the enemy currently active?
+        self.boss = False  # Easier knowledge if enemy is boss or not
         self.target = target  # Enemy access to player object
         self.number = number
-
-    def __str__(self):
-        return '{self.name}'.format(self=self)
 
     """
     Method that handles enemy actions
     """
     def baction(self):
         if randint(1, 5) == randint(1, 5):  # Dice roll for enemy attack
-            print(f"{Enemy} used {self.action}!")
+            print(f"{self.name} used {self.action[0]}!")
             print(f"You took {self.Damage} damage!")
             self.target.take_damage(self.Damage)  # Subtract player health
         else:
-            print(f"{Enemy} failed to attack! Your move!")
+            print(f"{self.name} failed to attack! Your move!")
 
         if randint(1, 40) == randint(1, 20):  # Dice roll for enemy healing
-            print(f"{Enemy} is healing!")
+            print(f"{self.name} is healing!")
             self.heal(randint(1, 3))  # Heal random amount for enemy
 
     """
@@ -395,16 +385,18 @@ class Boss(Enemy):
         self.actions = ["Attack", "Super Attack", "Heal", "Defend"]
         self.activated = True  # Is the boss active?
         self.blocking = False  # Is the boss blocking attacks?
+        self.boss = True
         self.superattacked = False  # Has the boss super attacked?
 
     """
     Method that handles enemy taking damage
     """
     def take_dmg(self, dmg):
-        if self.blocking == False:
+        if not self.blocking:
             self.hp -= dmg
         else:
             print("Boss blocked your attack!")
+            self.blocking = False
 
     """
     Method handling boss actions
@@ -433,7 +425,7 @@ class Boss(Enemy):
     """
 
     def attack(self):
-        print(f"{Enemy} used {self.action}!")
+        print(f"{self.name} used {self.action[0]}!")
         print(f"You took {self.Damage} damage!")
         if self.superattacked:
             self.target.take_damage(self.Damage//2)
@@ -444,23 +436,23 @@ class Boss(Enemy):
         if self.superattacked:  # Checking if the boss has super attacked or not
             if randint(1, 9) == randint(1, 9):  # Dice roll to super attack
                 print("BOSS is amping up his attack!")
-                print(f"{Enemy} used {self.action}!")
+                print(f"{self.name} used {self.action[0]}!")
                 print(f"You took {self.Damage} damage!")
                 self.target.take_damage(self.Damage * 2)
                 self.superattacked = True
             else:
-                print(f"{Enemy} failed to attack! Your move!")
+                print(f"{self.name} failed to attack! Your move!")
         else:
             if randint(1, 2) == randint(1, 2):  # Dice roll to super attack
                 print("BOSS is amping up his attack!")
-                print(f"{Enemy} used {self.action}!")
+                print(f"{self.name} used {self.action[0]}!")
                 print(f"You took {self.Damage} damage!")
                 self.target.take_damage(self.Damage)
             else:
-                print(f"{Enemy} failed to attack! Your move!")
+                print(f"{self.name} failed to attack! Your move!")
 
     def panic(self):
-        if 1 > self.hp > 0:  # Checking panic conditions
+        if 3 > self.hp > 0:  # Checking panic conditions
             print("The BOSS is unleashing its fury!")
             self.super_attack()
             self.baction()
@@ -490,22 +482,22 @@ class GameModules:
     BOSS = {
         "the FACE": {
             "HP": 7,
-            "Actions": ["Bite", "Parry"],
+            "Actions": ["Bite"],
             "Damage": 7
         },
         "the MOON": {
             "HP": 12,
-            "Actions": ["Roll", "Parry"],
+            "Actions": ["Roll"],
             "Damage": 3
         },
         "teh epix duck": {
             "HP": 25,
-            "Actions": ["Quack", "Parry"],
+            "Actions": ["Quack"],
             "Damage": 6
         },
         "Telamon": {
             "HP": 20,
-            "Actions": ["Stab", "Parry"],
+            "Actions": ["Stab"],
             "Damage": 2
         }
     }

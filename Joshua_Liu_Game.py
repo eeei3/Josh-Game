@@ -6,8 +6,6 @@ This is a text-based game that is programmed with OOP.
 """
 import random
 from Joshua_Liu_Game_Functions import MapModules, GameModules, GeneralModules, EnemyMovement
-import threading
-import time
 # import Joshua_Liu_Message_Queue
 
 engage = False
@@ -86,8 +84,6 @@ class Game:
         self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].enter()
         # Set player's current room as this room
         self.GameF.character.room = self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]]
-        # Give the player an additional move
-        # self.main()
 
     """
     Method for handling combat
@@ -123,11 +119,21 @@ class Game:
                     self.GameF.character.blocking = True
                 else:
                     # Inflicting damage on enemy
-                    EnemyMovement.engaged.take_dmg(self.GameF.ITEMS[item]["Dmg"])
-                    print(f"You did {self.GameF.ITEMS[item]['Dmg']} to {EnemyMovement.engaged}")
-                    if item == "Gilgamesh":  # Checking if player used Gilgamesh
+                    EnemyMovement.engaged.take_dmg\
+                        (self.GameF.ITEMS[item]["Dmg"])
+                    print(f"You did {self.GameF.ITEMS[item]['Dmg']} "
+                          f"DMG to {EnemyMovement.engaged.name}")
+                    if EnemyMovement.engaged.hp <= 0:
+                        print(f"{EnemyMovement.engaged.name} has been defeated")
+                        if EnemyMovement.engaged.boss:
+                            self.GameF.character.room.items.append("Key")
+                        EnemyMovement.engage = False
+                        EnemyMovement.engaged = None
+                    # Checking if player used Gilgamesh
+                    if item == "Gilgamesh":
                         print("Gilgamesh is too powerful!")
-                        self.GameF.character.take_damage(1)  # Player takes damage
+                        # Player takes damage
+                        self.GameF.character.take_damage(1)
                 loop = False  # Exiting loop
             else:
                 print("Bad input! Try again.\n\n")
@@ -174,24 +180,22 @@ class Game:
                 data = mapmaker.generate_map()  # generate the map
                 self.map = data[0]
                 player.pos = data[1]
-                # print(type(self.world))
                 self.world = mapmaker.create_rooms()
-                # print(type(self.world))
-                # Set previous coordinates as current
-                # GameF.character["player_pos"] = GameModules.player_pos
                 self.GameF = GameModules(player)
                 self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]].enter()
                 player.room = self.world[self.GameF.character.pos[1]][self.GameF.character.pos[0]]
-                # player.pos = GameModules.player_pos
-                # GameF.character["Name"] = input()
-                # self.move()  # Give player initial movement
             else:
                 print("Bad input. Try again")
         self.em = EnemyMovement()
+        self.main()  # Initial movement
         while True:
-            self.main()
+            # Is player in combat, if so, use combat routine
             if EnemyMovement.engaged:
+                self.main()
                 self.em.main()
+            # Player is not in combat, proceed as normal
+            else:
+                self.main()
 
     """
     Method for handling player loop
@@ -202,6 +206,8 @@ class Game:
         # To account for player inaction
         loop = False
         print("\n")
+        if EnemyMovement.engage:
+            print("Player has engaged in battle!")
         while not loop:
             # Print available actions
             print("What do you want to do?")
@@ -247,7 +253,7 @@ class Player:
     def __init__(self, name, hp, pos, inventory=None):
         self.name = name  # Name of player
         self.hp = hp  # Player health
-        self.inventory = ["Fists", "Shield"]  # Initial inventory
+        self.inventory = ["Fists", "Shield", "Key"]  # Initial inventory
         # List of actions player can take
         self.actions = ["Search", "Move", "Battle", "Check Inventory", "Checkup"]
         # Player position
@@ -270,11 +276,12 @@ class Player:
         if self.blocking == False:
             self.hp -= dmg
             # Checking if the player has died or not
+        else:
+            print("You blocked the attack!")
+            self.blocking = False
         if self.hp <= 0:
             print("You died!")
             quit()
-        else:
-            print("You blocked the attack!")
 
     """
     Method for handling checking player inventory
@@ -305,10 +312,6 @@ class Player:
                 print("You found nothing. Better next time chump!")
         else:  # No items in room
             print("You scour the ground, but there isn't even a dust speck to pick up!")
-
-#
-# t1 = threading.Thread(target=)
-# t1.start()
 
 
 fungame = Game()  # start the game!
