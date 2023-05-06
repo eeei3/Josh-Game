@@ -9,28 +9,30 @@ from Joshua_Liu_Game_Functions import MapModules, GameModules, \
     GeneralModules, EnemyMovement
 
 
-engage = False
-
-"""
-Class for the game
-"""
+engage = False  # variable for checking if player is engaged in combat
 
 
 class Game:
+    """
+    Class for the game
+    """
+
     def __init__(self):
         self.map = []  # list for simple map (no room objects)
         self.world = []  # list for map with room objects
         self.GameF = None  # Variable for object
-        self.em = None
+        self.em = None  # Variable for enemy movement object
         # Start the game
         self.start()
 
-    """
-    Method for handling the player quiting the game
-    """
     def game_quit(self, player):
+        """
+        Method for handling the player quiting the game
+        """
+        # Data relating to player
         gdata = [player.name, player.hp, player.inventory,
                  player.pos, player.room, self.em.engaged]
+        # Data relating to map
         gmap = [self.world, self.map]
         # Write map to file
         GeneralModules.write_to_file("prevmap", gmap)
@@ -38,12 +40,11 @@ class Game:
         GeneralModules.write_to_file("previnv", gdata)
         quit()
 
-    """
-    Method for handling player movement
-    """
-
     def move(self):
-        x = 0
+        """
+        Method for handling player movement
+        """
+        x = 0  # Variable for loop
         # User input loop
         while x == 0:
             print("What do you want to do?")
@@ -90,16 +91,12 @@ class Game:
         # Set player's current room as this room
         self.GameF.character.room = \
             self.world[self.GameF.character.pos[1]]\
-                [self.GameF.character.pos[0]]
-
-    """
-    Method for handling combat
-    """
+            [self.GameF.character.pos[0]]
 
     def battle(self):
-        # Checking if player has won
-        if GameModules.win:
-            quit()
+        """
+        Method for handling combat
+        """
         # Check if player can enter combat
         if EnemyMovement.engage is False:
             print("\nNothing to battle!")
@@ -149,11 +146,10 @@ class Game:
             else:
                 print("Bad input! Try again.\n\n")
 
-    """
-    Method for handling the start of the game
-    """
-
     def start(self):
+        """
+        Method for handling the start of the game
+        """
         x = True  # Setting start up loop as true
         print("Do you want to load a previous session?")
         print("If you want to, enter previous, "
@@ -184,8 +180,11 @@ class Game:
                                     inventory=prevcharacter[2])
                     player.room = prevcharacter[4]
                     self.em.engaged = prevcharacter[5]
-                    MapModules.length = len(self.map[0])  # Getting map length
-                    MapModules.height = len(self.map)  # Getting map height
+                    # Getting map length
+                    MapModules.length = len(self.map[0])
+                    # Getting map height
+                    MapModules.height = len(self.map)
+                    # Object for GameF
                     self.GameF = GameModules(player)
                     x = False  # stop loop
                 finally:
@@ -194,15 +193,20 @@ class Game:
                 x = False  # stop loop
                 print("Input your character's name:")  # Get player name
                 name = input()
-                player = Player(name, 5, [])
-                mapmaker = MapModules(player)
+                player = Player(name, 5, [])  # Player object
+                mapmaker = MapModules(player)  # Map maker object
                 data = mapmaker.generate_map()  # generate the map
-                self.map = data[0]
-                player.pos = data[1]
+                self.map = data[0]  # map
+                player.pos = data[1]  # Player spawn point
+                # Map with objects for rooms
                 self.world = mapmaker.create_rooms()
+                # Object for GameF
                 self.GameF = GameModules(player)
+                # Player has entered room thus triggering
+                # Entered function
                 self.world[self.GameF.character.pos[1]]\
                     [self.GameF.character.pos[0]].enter()
+                # Setting player current room as this room
                 player.room = self.world[self.GameF.character.pos[1]]\
                     [self.GameF.character.pos[0]]
             else:
@@ -217,11 +221,10 @@ class Game:
             else:
                 self.main()
 
-    """
-    Method for handling player loop
-    """
-
     def main(self):
+        """
+        Method for handling player loop
+        """
         # Setting main loop as false so the player
         # To account for player inaction
         loop = False
@@ -250,7 +253,9 @@ class Game:
             elif choice.title() == "Check Inventory":
                 self.GameF.character.check_inv()
             elif choice.title() == "Checkup":
-                print(f"HP:{self.GameF.character.hp}")
+                # Checking how much health player has
+                print(f"HP: {self.GameF.character.hp}")
+            # Player attempting to trigger win condition
             elif choice.title() == "Leave Dungeon":
                 if choice.title() in self.GameF.character.actions:
                     self.GameF.character.room.exitgame()
@@ -261,12 +266,10 @@ class Game:
                 print("Bad input. Try that again.")
 
 
-"""
-Class for the player
-"""
-
-
 class Player:
+    """
+    Class for the player
+    """
     def __init__(self, name, hp, pos, inventory=None):
         self.name = name  # Name of player
         self.hp = hp  # Player health
@@ -287,10 +290,10 @@ class Player:
         else:
             self.inventory = inventory
 
-    """
-    Method for handling player taking damage
-    """
     def take_damage(self, dmg):
+        """
+        Method for handling player taking damage
+        """
         # Checking if the player is blocking or not
         if not self.blocking:
             self.hp -= dmg
@@ -302,18 +305,18 @@ class Player:
             print("You died!")
             quit()
 
-    """
-    Method for handling checking player inventory
-    """
     def check_inv(self):
+        """
+        Method for handling checking player inventory
+        """
         print(f"You have {len(self.inventory)} items in your inventory")
         for item in self.inventory:
             print(f"You have a {item}")
 
-    """
-    Method for handling searching rooms for treasure
-    """
     def search(self):
+        """
+        Method for handling searching rooms for treasure
+        """
         # Checking if room has any items at all
         if len(self.room.items) != 0:
             # Dice roll to see if player finds anything

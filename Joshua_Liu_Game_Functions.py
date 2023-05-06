@@ -56,23 +56,21 @@ Class containing general file I/O methods
 
 class GeneralModules:
 
-    """
-    Function to write to file in wb mode for pickling
-    """
-
     @staticmethod
     def write_to_file(file, content):
+        """
+        Function to write to file in wb mode for pickling
+        """
         with open(file, "wb") as fd:
             pickle.dump(content, fd)  # serializing content
         return
 
-    """
-    Function to read from file in either r or rd mode
-    to support reading pickled data
-    """
-
     @staticmethod
     def read_to_file(file, mode):
+        """
+        Function to read from file in either r or rd mode
+        to support reading pickled data
+        """
         with open(file, "rb") as fd:
             if mode == "reload":
                 fd.seek(0)
@@ -83,12 +81,10 @@ class GeneralModules:
         return content
 
 
-"""
-Class containing methods and objects relating to the map
-"""
-
-
 class MapModules:
+    """
+    Class containing methods and objects relating to the map
+    """
     length = randint(4, 6)  # Length of room
     height = randint(4, 6)  # Width of room
     room = [  # Creating the room layout variable
@@ -100,11 +96,10 @@ class MapModules:
         # Giving object access to player object
         self.character = character
 
-    """
-    Function for creating a random map
-    """
-
     def generate_map(self):
+        """
+        Function for creating a random map
+        """
         x = 0  # x-coordinate for map
         y = 0  # y-coordinate for map
         # Populating the map with rooms
@@ -126,11 +121,11 @@ class MapModules:
         data = [MapModules.room, GameModules.player_pos]
         return data
 
-    """
-    Method for creating map but with room objects
-    rather than integers representing rooms
-    """
     def create_rooms(self):
+        """
+        Method for creating map but with room objects
+        rather than integers representing rooms
+        """
         x = 0
         y = 0
         worlb = []
@@ -153,12 +148,10 @@ class MapModules:
         return worlbcpy
 
 
-"""
-Class for rooms
-"""
-
-
 class Room:
+    """
+    Class for rooms
+    """
     def __init__(self, roomtype, pos, character):
         self.roomtype = roomtype  # The type of room
         # Is this the first time the player has been in the room?
@@ -170,10 +163,10 @@ class Room:
         self.character = character  # Access to character object
         self.ITEMS = ITEMS  # A list of possible items
 
-    """
-    Method for handling leaving room
-    """
     def leave(self):
+        """
+        Method for handling leaving room
+        """
         self.inroom = False  # Setting room as exited
         EnemyMovement.engaged = None  # Player no longer engaged
         EnemyMovement.engage = False  # Player is no longer engaged
@@ -181,17 +174,18 @@ class Room:
         if "Leave Dungeon" in self.character.actions:
             self.character.actions.remove("Leave Dungeon")
 
-    """
-    Method for handling traps
-    """
     def trap(self):
+        """
+        Method for handling traps
+        """
         if randint(1, 7) == randint(1, 7):  # Dice roll for trap
             print("You got hit by a trap!")
             self.character.take_damage(randint(1, 2))
-    """
-    Method for handling win condition
-    """
+
     def exitgame(self):
+        """
+        Method for handling win condition
+        """
         if "Key" in self.character.inventory:
             print("Congratulations! You won!!!")
             print("Now get outta here")
@@ -199,10 +193,10 @@ class Room:
         else:
             print("You are missing something. Now go look for it.")
 
-    """
-    Method handling for when entering room
-    """
     def enter(self):
+        """
+        Method handling for when entering room
+        """
         self.inroom = True  # Setting player as in room
         # Is this the first time player has entered room?
         if self.first:
@@ -315,12 +309,10 @@ class Room:
                 return
 
 
-"""
-Class for Enemy movement
-"""
-
-
 class EnemyMovement:
+    """
+    Class for Enemy movement
+    """
     engaged = None  # Enemy currently engaged in combat with player
     number = 0
     engage = False  # Is the player currently engaged with the enemy?
@@ -336,12 +328,11 @@ class EnemyMovement:
             eenemy.baction()
 
 
-"""
-Class for Enemies
-"""
-
-
 class Enemy:
+    """
+    Class for Enemies
+    """
+
     def __init__(self, name, stats, position, target):
         self.name = name  # Enemy name
         self.stats = stats  # Enemy stats
@@ -352,10 +343,10 @@ class Enemy:
         self.boss = False  # Easier knowledge if enemy is boss or not
         self.target = target  # Enemy access to player object
 
-    """
-    Method that handles enemy actions
-    """
     def baction(self):
+        """
+        Method that handles enemy actions
+        """
         # Dice roll for enemy attack
         if randint(1, 5) == randint(1, 5):
             print(f"{self.name} used {self.action[0]}!")
@@ -369,17 +360,17 @@ class Enemy:
             print(f"{self.name} is healing!")
             self.heal(randint(1, 3))  # Heal random amount for enemy
 
-    """
-    Method that handles enemy healing
-    """
     def heal(self, amount):
+        """
+        Method that handles enemy healing
+        """
         self.hp += amount
         return
 
-    """
-    Method that handles enemy taking damage
-    """
     def take_dmg(self, dmg):
+        """
+        Method that handles enemy taking damage
+        """
         self.hp -= dmg
 
 
@@ -393,21 +384,20 @@ class Boss(Enemy):
         self.boss = True
         self.superattacked = False  # Has the boss super attacked?
 
-    """
-    Method that handles enemy taking damage
-    """
     def take_dmg(self, dmg):
+        """
+        Method that handles enemy taking damage
+        """
         if not self.blocking:
             self.hp -= dmg
         else:
             print("Boss blocked your attack!")
             self.blocking = False
 
-    """
-    Method handling boss actions
-    """
-
     def baction(self):
+        """
+        Method handling boss actions
+        """
         self.panic()
         if randint(1, 2) == randint(1, 2):
             choice = self.actions[randint(0, 3)]
@@ -424,11 +414,10 @@ class Boss(Enemy):
         else:
             print("BOSS failed move! Strike back!")
 
-    """
-    Boss handling enemy attack
-    """
-
     def attack(self):
+        """
+        Method handling boss attack
+        """
         print(f"\n{self.name} used {self.action[0]}!")
         print(f"You took {self.Damage} damage!")
         if self.superattacked:
@@ -437,6 +426,9 @@ class Boss(Enemy):
             self.target.take_damage(self.Damage)
 
     def super_attack(self):
+        """
+        Method handling boss super attack
+        """
         # Checking if the boss has super attacked
         if self.superattacked:
             # Dice roll to super attack
@@ -459,6 +451,9 @@ class Boss(Enemy):
                 print(f"{self.name} failed to attack! Your move!")
 
     def panic(self):
+        """
+        Method handling boss panic functionality
+        """
         if 3 > self.hp > 0:  # Checking panic conditions
             print("\nThe BOSS is unleashing its fury!")
             self.super_attack()
@@ -466,26 +461,16 @@ class Boss(Enemy):
             self.heal(8)
 
 
-"""
-Class relating to methods and objects of the actual game
-"""
-
-
 class GameModules:
-    win = False  # Has the player won yet?
-
-    class Item:
-        def __init__(self, stats, iskey):
-            self.stats = stats
-            self.iskey = iskey
-
-        def consumekey(self):
-            if self.iskey:
-                print("You escaped!")
+    """
+    Class relating to methods and objects of the actual game
+    """
 
     player_pos = None   # Variable for player position
+    # Constant list of enemies
     ENEMIESLIST = ["Goblina", "talking ben", "Jesse",
                    "Mr. White", "Anomaly"]
+    # Constant list of bosses
     BOSSLIST = ["the FACE", "the MOON", "teh epix duck", "Telamon"]
     # Constant for bosses
     BOSS = {
@@ -550,8 +535,8 @@ class GameModules:
         # Player object
         self.character = character
 
-    """Function for printing player inventory"""
     def check_inv(self):
+        """Function for printing player inventory"""
         print(f"You have {len(self.character.inventory)} items in your inventory")
         if len(self.character.inventory) != 0:
             for item in self.character.inventory:
