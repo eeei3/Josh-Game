@@ -16,37 +16,30 @@ engage = False  # variable for checking if player is engaged in combat
 
 
 class Game:
-    """
-    Class for the game
-    """
+    """Class for the game"""
 
     def __init__(self):
         self.map = []  # list for simple map (no room objects)
         self.world = []  # list for map with room objects
         self.GameF = None  # Variable for object
         self.em = None  # Variable for enemy movement object
+        self.game_map = None
         # Start the game
         self.start()
 
     def game_quit(self, player):
-        """
-        Method for handling the player quiting the game
-        """
+        """Method for handling the player quiting the game"""
         # Data relating to player
         gdata = [player.name, player.hp, player.inventory,
                  player.pos, player.room, self.em.engaged]
-        # Data relating to map
-        gmap = [self.world, self.map]
         # Write map to file
-        GeneralModules.write_to_file("prevmap", gmap)
+        GeneralModules.write_to_file("prevmap", self.game_map)
         # Write character state to file
         GeneralModules.write_to_file("previnv", gdata)
         quit()
 
     def move(self):
-        """
-        Method for handling player movement
-        """
+        """Method for handling player movement"""
         x = 0  # Variable for loop
         # User input loop
         while x == 0:
@@ -97,9 +90,7 @@ class Game:
             [self.GameF.character.pos[0]]
 
     def battle(self):
-        """
-        Method for handling combat
-        """
+        """Method for handling combat"""
         # Check if player can enter combat
         if EnemyMovement.engage is False:
             print("\nNothing to battle!")
@@ -165,8 +156,8 @@ class Game:
                     # Get previous map
                     gmap = \
                         GeneralModules.read_to_file("prevmap", "reload")
-                    self.map = gmap[1]
-                    self.world = gmap[0]
+                    self.game_map.roommap = gmap[1]
+                    self.game_map.layoutmap = gmap[0]
                     # Get previous character state
                     prevcharacter = \
                         GeneralModules.read_to_file("previnv", "reload")
@@ -178,15 +169,15 @@ class Game:
                     print(e)
                     quit()
                 else:
-                    player = Player(prevcharacter[0], prevcharacter[1],
+                    player = Joshua_Liu_Player.Player(prevcharacter[0], prevcharacter[1],
                                     prevcharacter[3],
                                     inventory=prevcharacter[2])
                     player.room = prevcharacter[4]
                     self.em.engaged = prevcharacter[5]
                     # Getting map length
-                    MapModules.length = len(self.map[0])
+                    self.game_map.length = len(self.map[0])
                     # Getting map height
-                    MapModules.height = len(self.map)
+                    self.game_map.height = len(self.map)
                     # Object for GameF
                     self.GameF = GameModules(player)
                     x = False  # stop loop
@@ -196,21 +187,22 @@ class Game:
                 x = False  # stop loop
                 print("Input your character's name:")  # Get player name
                 name = input()
-                player = Player(name, 5, [])  # Player object
+                player = Joshua_Liu_Player.Player(name, 5, [])  # Player object
+                self.game_map = Joshua_Liu_Map.GameMap(player)
                 mapmaker = MapModules(player)  # Map maker object
                 data = mapmaker.generate_map()  # generate the map
                 self.map = data[0]  # map
-                player.pos = data[1]  # Player spawn point
+                player.pos = self.game_map.initpos  # Player spawn point
                 # Map with objects for rooms
                 self.world = mapmaker.create_rooms()
                 # Object for GameF
                 self.GameF = GameModules(player)
                 # Player has entered room thus triggering
                 # Entered function
-                self.world[self.GameF.character.pos[1]]\
+                self.game_map.roommap[self.GameF.character.pos[1]]\
                     [self.GameF.character.pos[0]].enter()
                 # Setting player current room as this room
-                player.room = self.world[self.GameF.character.pos[1]]\
+                player.room = self.game_map.roommap[self.GameF.character.pos[1]]\
                     [self.GameF.character.pos[0]]
             else:
                 print("Bad input. Try again")
@@ -267,77 +259,6 @@ class Game:
                 self.game_quit(self.GameF.character)
             else:
                 print("Bad input. Try that again.")
-
-
-class Player:
-    """
-    Class for the player
-    """
-    def __init__(self, name, hp, pos, inventory=None):
-        self.name = name  # Name of player
-        self.hp = hp  # Player health
-        self.inventory = ["Fists"]  # Initial inventory
-        # List of actions player can take
-        self.actions = ["Search", "Move", "Battle",
-                        "Check Inventory", "Checkup"]
-        # Player position
-        self.pos = pos
-        # Room that player is currently in
-        # Also gives player object access to room object
-        self.room = None
-        self.blocking = False
-        # Checking if Player class was passed an argument for inventory
-        # During initialization
-        if inventory is None:
-            pass
-        else:
-            self.inventory = inventory
-
-    def take_damage(self, dmg):
-        """
-        Method for handling player taking damage
-        """
-        # Checking if the player is blocking or not
-        if not self.blocking:
-            self.hp -= dmg
-        else:
-            print("You blocked the attack!")
-            self.blocking = False
-        # Checking if the player has died or not
-        if self.hp <= 0:
-            print("You died!")
-            quit()
-
-    def check_inv(self):
-        """
-        Method for handling checking player inventory
-        """
-        print(f"You have {len(self.inventory)} items in your inventory")
-        for item in self.inventory:
-            print(f"You have a {item}")
-
-    def search(self):
-        """
-        Method for handling searching rooms for treasure
-        """
-        # Checking if room has any items at all
-        if len(self.room.items) != 0:
-            # Dice roll to see if player finds anything
-            if random.randint(1, 5) == random.randint(1, 5):  # Success
-                # Index for item that player found
-                itemnum = random.randint(0, len(self.room.items) - 1)
-                # Print item that player found
-                print(f"You found an {self.room.items[itemnum]}")
-                print(f"Desc: "
-                      f"{self.room.ITEMS[self.room.items[itemnum]]['Desc']}")
-                # Append item to player inventory
-                self.inventory.append(self.room.items[itemnum])
-                self.room.items.pop(itemnum)  # Remove item from room
-            else:  # Player found nothing
-                print("You found nothing. Better next time chump!")
-        else:  # No items in room
-            print("You scour the ground, "
-                  "but there isn't even a dust speck to pick up!")
 
 
 fungame = Game()  # start the game!
