@@ -7,6 +7,9 @@ This is a text-based game that is programmed with OOP.
 import random
 from Joshua_Liu_Game_Functions import MapModules, GameModules, \
     GeneralModules, EnemyMovement
+import Joshua_Liu_Player
+import Joshua_Liu_Map
+import Joshua_Liu_Enemy
 
 
 engage = False  # variable for checking if player is engaged in combat
