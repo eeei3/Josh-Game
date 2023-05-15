@@ -20,3 +20,6 @@ class Inventory:
         if len(self.inventory) != 0:
             for item in self.inventory:
                 print(f"You have a {item}")
+
+    def add_inv(self, item):
+        self.inventory.append(item)

@@ -4,8 +4,8 @@ CS 30 Period 1
 May 14, 2023
 This file contains the module for the Game map
 """
-from Joshua_Liu_Game_Functions import GameModules
 from Joshua_Liu_Enemy import Enemy, Boss
+import Joshua_Liu_Enemy
 from random import *
 
 
@@ -71,8 +71,8 @@ class GameMap:
         room[0][player_start] = 0  # creating a starting room
         # creating an exit room
         room[x - 1][randint(0, self.length - 1)] = 6
-        GameModules.player_pos = [player_start, 0]
-        data = [room, GameModules.player_pos]
+        self.character.pos = [player_start, 0]
+        data = [room, self.character.pos]
         return data
 
     def create_rooms(self):
@@ -259,8 +259,9 @@ class Rooms:
             # Events for Monster Room
             if self.roomtype[0] == "Monster Room":
                 # Create random enemy object
-                enemyname = GameModules.ENEMIESLIST[randint(0, 4)]
-                enemy = Enemy(enemyname, GameModules.ENEMIES[enemyname],
+                enemyname = Joshua_Liu_Enemy.ENEMIESLIST[randint(0, 4)]
+                enemy = Enemy(enemyname,
+                              Joshua_Liu_Enemy.ENEMIES[enemyname],
                               [self.pos[1], self.pos[0]],
                               self.character)
                 print(f"You have encountered a {enemy.name}")
@@ -274,9 +275,11 @@ class Rooms:
             elif self.roomtype[0] == "Boss Room":
                 print("Entering boss room")
                 # Create random boss object
-                enemyname = GameModules.BOSSLIST[randint(0, 3)]
-                enemy = Boss(enemyname, GameModules.BOSS[enemyname],
-                             [self.pos[1], self.pos[0]], self.character)
+                enemyname = Joshua_Liu_Enemy.BOSSLIST[randint(0, 3)]
+                enemy = Boss(enemyname,
+                             Joshua_Liu_Enemy.BOSS[enemyname],
+                             [self.pos[1], self.pos[0]],
+                             self.character)
                 print(f"You have encountered a {enemy.name}")
                 # Setting player as engaged against boss
                 self.EnemyMovement.engaged = enemy

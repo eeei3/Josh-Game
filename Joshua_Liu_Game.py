@@ -5,8 +5,7 @@ April 24, 2023
 This is a text-based game that is programmed with OOP.
 """
 import Joshua_Liu_Enemy
-from Joshua_Liu_Game_Functions import GameModules, \
-    GeneralModules
+from Joshua_Liu_Game_Functions import GeneralModules
 import Joshua_Liu_Player
 import Joshua_Liu_Map
 # import Joshua_Liu_Enemy
@@ -25,6 +24,7 @@ class Game:
         # self.em = EnemyMovement()  # Variable for enemy movement object
         self.em = None
         self.game_map = None
+        self.character = None
         # Start the game
         self.start()
 
@@ -50,12 +50,12 @@ class Game:
         # Giving player their options
         print("\nYou chose to fight back!")
         print("These are the options that you have:")
-        for item in self.GameF.character.inventory:
+        for item in self.character.inventory:
             if "Dmg" in self.GameF.ITEMS[item]:
                 print(f"{index}:  {item}\n"
                       f"{self.GameF.ITEMS[item]['Desc']}")
                 index += 1
-        if "Shield" in self.GameF.character.inventory:
+        if "Shield" in self.character.inventory:
             print(f"{index}:  Shield\n"
                   f"{self.GameF.ITEMS['Shield']['Desc']}")
         print("Make your choice!")
@@ -64,9 +64,9 @@ class Game:
             choice = input()  # Get player input
             item = choice.title()
             # Checking if input is valid or not
-            if item in self.GameF.character.inventory:
+            if item in self.character.inventory:
                 if item == "Shield":
-                    self.GameF.character.blocking = True
+                    self.character.blocking = True
                 else:
                     # Inflicting damage on enemy
                     self.em.engaged.take_dmg(
@@ -77,7 +77,7 @@ class Game:
                         print(f"{self.em.engaged.name} "
                               f"has been defeated")
                         if self.em.engaged.boss:
-                            self.GameF.character.room.items.append(
+                            self.character.room.items.append(
                                 "Key")
                         self.em.engage = False
                         self.em.engaged = None
@@ -85,7 +85,7 @@ class Game:
                     if item == "Gilgamesh":
                         print("Gilgamesh is too powerful!")
                         # Player takes damage
-                        self.GameF.character.take_damage(1)
+                        self.character.take_damage(1)
                 loop = False  # Exiting loop
             else:
                 print("Bad input! Try again.\n\n")
@@ -118,17 +118,17 @@ class Game:
                     print(e)
                     quit()
                 else:
-                    player = Joshua_Liu_Player.Player(prevcharacter[0], prevcharacter[1],
+                    self.character = Joshua_Liu_Player.Player(
+                                    prevcharacter[0],
+                                    prevcharacter[1],
                                     prevcharacter[3],
                                     inventory=prevcharacter[2])
-                    player.room = prevcharacter[4]
+                    self.character.room = prevcharacter[4]
                     self.em.engaged = prevcharacter[5]
                     # Getting map length
                     self.game_map.length = len(self.map[0])
                     # Getting map height
                     self.game_map.height = len(self.map)
-                    # Object for GameF
-                    self.GameF = GameModules(player)
                     x = False  # stop loop
                 finally:
                     pass
@@ -136,19 +136,21 @@ class Game:
                 x = False  # stop loop
                 print("Input your character's name:")  # Get player name
                 name = input()
-                player = Joshua_Liu_Player.Player(name, 5, [])  # Player object
+                # Player object
+                self.character = Joshua_Liu_Player.Player(name, 5, [])
                 self.em = Joshua_Liu_Enemy.EnemyActions()
-                self.game_map = Joshua_Liu_Map.GameMap(player, self.em)
-                player.pos = self.game_map.initpos  # Player spawn point
-                # Object for GameF
-                self.GameF = GameModules(player)
+                self.game_map = Joshua_Liu_Map.GameMap(
+                    self.character, self.em)
+                # Player spawn point
+                self.character.pos = self.game_map.initpos
                 # Player has entered room thus triggering
                 # Entered function
-                self.game_map.roommap[self.GameF.character.pos[1]]\
-                    [self.GameF.character.pos[0]].enter()
+                self.game_map.roommap[self.character.pos[1]]\
+                    [self.character.pos[0]].enter()
                 # Setting player current room as this room
-                player.room = self.game_map.roommap[self.GameF.character.pos[1]]\
-                    [self.GameF.character.pos[0]]
+                self.character.room = self.game_map.roommap[
+                    self.character.pos[1]]\
+                    [self.character.pos[0]]
             else:
                 print("Bad input. Try again")
         self.main()  # Initial movement
@@ -173,7 +175,7 @@ class Game:
         while not loop:
             # Print available actions
             print("\nWhat do you want to do?")
-            for action in self.GameF.character.actions:
+            for action in self.character.actions:
                 print(action)
             print("Enter quit to exit the game")
             choice = input()  # get user choice
@@ -185,24 +187,24 @@ class Game:
                 self.game_map.move()
                 loop = True
             elif choice.capitalize() == "Search":
-                self.GameF.character.search()
+                self.character.search()
                 loop = True
             elif choice.capitalize() == "Battle":
                 self.battle()
                 loop = True
             # capitalize() wont work. Need title()
             elif choice.title() == "Check Inventory":
-                self.GameF.character.check_inv()
+                self.character.check_inv()
             elif choice.title() == "Checkup":
                 # Checking how much health player has
-                print(f"HP: {self.GameF.character.hp}")
+                print(f"HP: {self.character.hp}")
             # Player attempting to trigger win condition
             elif choice.title() == "Leave Dungeon":
-                if choice.title() in self.GameF.character.actions:
-                    self.GameF.character.room.exitgame()
+                if choice.title() in self.character.actions:
+                    self.character.room.exitgame()
             # End Placeholder functions
             elif choice.capitalize() == "Quit":
-                self.game_quit(self.GameF.character)
+                self.game_quit(self.character)
             else:
                 print("Bad input. Try that again.")
 
