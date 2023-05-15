@@ -10,7 +10,7 @@ from random import *
 
 
 class GameMap:
-    def __init__(self, character):
+    def __init__(self, character, enemymovement):
         self.character = character
         self.DIRECTION = ["forward", "right", "left", "back"]
         self.length = randint(4, 6)
@@ -18,15 +18,39 @@ class GameMap:
         self.data = self.generate_map()
         self.layoutmap = self.data[0]
         self.initpos = self.data[1]
+        self.enemymovement = enemymovement
         self.roommap = self.create_rooms()
-
-    def return_position(self):
-        return self.initpos
+        self.ITEMS = {
+            "Regular Sword": {
+                "Desc": "Simple steel",
+                "Dmg": 3
+            },
+            "Shield": {
+                "Desc": "Simple wood",
+            },
+            "Gilgamesh": {
+                "Desc": ":gilgamesh:",
+                "Dmg": 40
+            },
+            "Jerma": {
+                "Desc": "Unleash destruction upon your foes",
+                "Dmg": 15
+            },
+            "Omega Energy Sword": {
+                "Desc": "Super damage!",
+                "Dmg": 10
+            },
+            "Key": {
+                "Desc": "But what does it sayyyyyyy?!?!",
+            },
+            "Fists": {
+                    "Desc": "Good ol fist cuffs",
+                    "Dmg": 2
+                },
+        }
 
     def generate_map(self):
-        """
-        Function for creating a random map
-        """
+        """Function for creating a random map"""
         x = 0  # x-coordinate for map
         y = 0  # y-coordinate for map
         room = [  # Creating the room layout variable
@@ -71,7 +95,7 @@ class GameMap:
             while x < self.length:
                 worlb.append(Rooms(
                     ROOM_LEGEND[self.layoutmap[y][x]],
-                    [x, y], self.character))
+                    [x, y], self.character, self.enemymovement))
                 x += 1
             if y == 0:
                 worlbcpy[0] = worlb
@@ -85,9 +109,7 @@ class GameMap:
         return worlbcpy
 
     def move(self):
-        """
-        Method for handling player movement
-        """
+        """Method for handling player movement"""
         x = 0  # Variable for loop
         # User input loop
         while x == 0:
@@ -117,7 +139,7 @@ class GameMap:
                 # does not exit game, brings user back to previous menu
                 x = 1
             else:
-                self.world[self.character.pos[1]]\
+                self.roommap[self.character.pos[1]]\
                     [self.character.pos[0]].leave()
                 x = 1  # breaking loop this way
                 # Seeing what action user chose
@@ -137,17 +159,97 @@ class GameMap:
             self.roommap[self.character.pos[1]]\
             [self.character.pos[0]]
 
-class Rooms(GameMap):
-    def __init__(self, roomtype, pos, character):
-        super().__init__(character)
+    def trap(self):
+        """
+        Method for handling traps
+        """
+        if randint(1, 7) == randint(1, 7):  # Dice roll for trap
+            print("You got hit by a trap!")
+            self.character.take_damage(randint(1, 2))
+
+    def exitgame(self):
+        """
+        Method for handling win condition
+        """
+        if "Key" in self.character.inventory:
+            print("Congratulations! You won!!!")
+            print("Now get outta here")
+            quit()
+        else:
+            print("You are missing something. Now go look for it.")
+
+
+class Rooms:
+    def __init__(self, roomtype, pos, character, enemymovement):
         self.first = True
         self.roomtype = roomtype
         self.pos = pos
+        self.items = []
+        self.character = character
+        self.inroom = False
+        self.EnemyMovement = enemymovement
+        self.enemie = None  # Enemy in room
+        self.ITEMS = {
+            "Regular Sword": {
+                "Desc": "Simple steel",
+                "Dmg": 3
+            },
+            "Shield": {
+                "Desc": "Simple wood",
+            },
+            "Gilgamesh": {
+                "Desc": ":gilgamesh:",
+                "Dmg": 40
+            },
+            "Jerma": {
+                "Desc": "Unleash destruction upon your foes",
+                "Dmg": 15
+            },
+            "Omega Energy Sword": {
+                "Desc": "Super damage!",
+                "Dmg": 10
+            },
+            "Key": {
+                "Desc": "But what does it sayyyyyyy?!?!",
+            },
+            "Fists": {
+                "Desc": "Good ol fist cuffs",
+                "Dmg": 2
+            },
+        }
+
+    def trap(self):
+        """
+        Method for handling traps
+        """
+        if randint(1, 7) == randint(1, 7):  # Dice roll for trap
+            print("You got hit by a trap!")
+            self.character.take_damage(randint(1, 2))
+
+    def exitgame(self):
+        """
+        Method for handling win condition
+        """
+        if "Key" in self.character.inventory:
+            print("Congratulations! You won!!!")
+            print("Now get outta here")
+            quit()
+        else:
+            print("You are missing something. Now go look for it.")
+
+    def leave(self):
+        """
+        Method for handling leaving room
+        """
+        self.inroom = False  # Setting room as exited
+        self.EnemyMovement.engaged = None  # Player no longer engaged
+        self.EnemyMovement.engage = False  # Player is no longer engaged
+        # Player no longer satisfies win condition
+        if "Leave Dungeon" in self.character.actions:
+            self.character.actions.remove("Leave Dungeon")
 
     def enter(self):
-        """
-        Method handling for when entering room
-        """
+        """Method handling for when entering room"""
         self.inroom = True  # Setting player as in room
         # Is this the first time player has entered room?
         if self.first:
@@ -163,9 +265,9 @@ class Rooms(GameMap):
                               self.character)
                 print(f"You have encountered a {enemy.name}")
                 # Setting player as engaged against enemy
-                EnemyMovement.engaged = enemy
+                self.EnemyMovement.engaged = enemy
                 # Setting player as engaged
-                EnemyMovement.engage = True
+                self.EnemyMovement.engage = True
                 # Setting enemy in room as this enemy
                 self.enemie = enemy
             # Events for Boss Room
@@ -177,9 +279,9 @@ class Rooms(GameMap):
                              [self.pos[1], self.pos[0]], self.character)
                 print(f"You have encountered a {enemy.name}")
                 # Setting player as engaged against boss
-                EnemyMovement.engaged = enemy
+                self.EnemyMovement.engaged = enemy
                 # Setting player as engaged
-                EnemyMovement.engage = True
+                self.EnemyMovement.engage = True
                 # Setting enemy in room as this boss
                 self.enemie = enemy
             # Events for Trap Room
@@ -221,8 +323,8 @@ class Rooms(GameMap):
                         print(self.enemie.hp)
                         print(f"\nYou have encountered a "
                               f"{self.enemie.name}")
-                        EnemyMovement.engaged = self.enemie
-                        EnemyMovement.engage = True
+                        self.EnemyMovement.engaged = self.enemie
+                        self.EnemyMovement.engage = True
                     else:  # Yes
                         del self.enemie  # Deleting enemy object
                         self.enemie = None
@@ -237,8 +339,8 @@ class Rooms(GameMap):
                         print(self.enemie.hp)
                         print(f"\nYou have encountered a "
                               f"{self.enemie.name}")
-                        EnemyMovement.engaged = self.enemie
-                        EnemyMovement.engage = True
+                        self.EnemyMovement.engaged = self.enemie
+                        self.EnemyMovement.engage = True
                     else:  # Yes
                         del self.enemie  # Deleting boss object
                         self.enemie = None
@@ -255,6 +357,4 @@ class Rooms(GameMap):
             # Events for Exit Room
             elif self.roomtype[0] == "Exit":
                 self.character.actions.append("Leave Dungeon")
-                return
-            else:
                 return

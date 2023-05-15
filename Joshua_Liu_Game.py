@@ -4,12 +4,12 @@ CS 30 Period 1
 April 24, 2023
 This is a text-based game that is programmed with OOP.
 """
-import random
-from Joshua_Liu_Game_Functions import MapModules, GameModules, \
-    GeneralModules, EnemyMovement
+import Joshua_Liu_Enemy
+from Joshua_Liu_Game_Functions import GameModules, \
+    GeneralModules
 import Joshua_Liu_Player
 import Joshua_Liu_Map
-import Joshua_Liu_Enemy
+# import Joshua_Liu_Enemy
 
 
 engage = False  # variable for checking if player is engaged in combat
@@ -22,7 +22,8 @@ class Game:
         self.map = []  # list for simple map (no room objects)
         self.world = []  # list for map with room objects
         self.GameF = None  # Variable for object
-        self.em = None  # Variable for enemy movement object
+        # self.em = EnemyMovement()  # Variable for enemy movement object
+        self.em = None
         self.game_map = None
         # Start the game
         self.start()
@@ -38,61 +39,10 @@ class Game:
         GeneralModules.write_to_file("previnv", gdata)
         quit()
 
-    def move(self):
-        """Method for handling player movement"""
-        x = 0  # Variable for loop
-        # User input loop
-        while x == 0:
-            print("What do you want to do?")
-            # Copy of DIRECTION list with only valid input
-            temp = self.GameF.DIRECTION[::]
-            # Remove invalid dirctions
-            if self.GameF.character.pos[0] == 0:
-                temp.remove("left")
-            if self.GameF.character.pos[0] == MapModules.length - 1:
-                temp.remove("right")
-            if self.GameF.character.pos[1] == MapModules.height - 1:
-                temp.remove("forward")
-            if self.GameF.character.pos[1] == 0:
-                temp.remove("back")
-            # Getting user input on direction
-            print("Your options are the following:")
-            for direction in temp:
-                print(direction)
-            print("Enter 'quit' to exit this menu")
-            print("What will you choose?")
-            choice = input()
-            # check if choice is valid
-            if choice not in temp and not choice == "quit":
-                print("invalid choice")
-            elif "quit" in choice:
-                # does not exit game, brings user back to previous menu
-                x = 1
-            else:
-                self.world[self.GameF.character.pos[1]]\
-                    [self.GameF.character.pos[0]].leave()
-                x = 1  # breaking loop this way
-                # Seeing what action user chose
-                if choice == "forward":
-                    self.GameF.character.pos[1] += 1
-                elif choice == "right":
-                    self.GameF.character.pos[0] += 1
-                elif choice == "left":
-                    self.GameF.character.pos[0] -= 1
-                elif choice == "back":
-                    self.GameF.character.pos[1] -= 1
-        # Trigger room enter events
-        self.world[self.GameF.character.pos[1]]\
-            [self.GameF.character.pos[0]].enter()
-        # Set player's current room as this room
-        self.GameF.character.room = \
-            self.world[self.GameF.character.pos[1]]\
-            [self.GameF.character.pos[0]]
-
     def battle(self):
         """Method for handling combat"""
         # Check if player can enter combat
-        if EnemyMovement.engage is False:
+        if self.em.engage is False:
             print("\nNothing to battle!")
             return
         index = 1  # number for listing items in inventory
@@ -119,18 +69,18 @@ class Game:
                     self.GameF.character.blocking = True
                 else:
                     # Inflicting damage on enemy
-                    EnemyMovement.engaged.take_dmg(
+                    self.em.engaged.take_dmg(
                         self.GameF.ITEMS[item]["Dmg"])
                     print(f"You did {self.GameF.ITEMS[item]['Dmg']} "
-                          f"DMG to {EnemyMovement.engaged.name}")
-                    if EnemyMovement.engaged.hp <= 0:
-                        print(f"{EnemyMovement.engaged.name} "
+                          f"DMG to {self.em.engaged.name}")
+                    if self.em.engaged.hp <= 0:
+                        print(f"{self.em.engaged.name} "
                               f"has been defeated")
-                        if EnemyMovement.engaged.boss:
+                        if self.em.engaged.boss:
                             self.GameF.character.room.items.append(
                                 "Key")
-                        EnemyMovement.engage = False
-                        EnemyMovement.engaged = None
+                        self.em.engage = False
+                        self.em.engaged = None
                     # Checking if player used Gilgamesh
                     if item == "Gilgamesh":
                         print("Gilgamesh is too powerful!")
@@ -148,7 +98,6 @@ class Game:
         print("Do you want to load a previous session?")
         print("If you want to, enter previous, "
               "or enter new to make a new game")
-        self.em = EnemyMovement()
         while x:  # Start up loop
             choice = input()  # See what the user wants to do
             if choice.capitalize() == "Previous":
@@ -188,13 +137,9 @@ class Game:
                 print("Input your character's name:")  # Get player name
                 name = input()
                 player = Joshua_Liu_Player.Player(name, 5, [])  # Player object
-                self.game_map = Joshua_Liu_Map.GameMap(player)
-                mapmaker = MapModules(player)  # Map maker object
-                data = mapmaker.generate_map()  # generate the map
-                self.map = data[0]  # map
+                self.em = Joshua_Liu_Enemy.EnemyActions()
+                self.game_map = Joshua_Liu_Map.GameMap(player, self.em)
                 player.pos = self.game_map.initpos  # Player spawn point
-                # Map with objects for rooms
-                self.world = mapmaker.create_rooms()
                 # Object for GameF
                 self.GameF = GameModules(player)
                 # Player has entered room thus triggering
@@ -209,9 +154,9 @@ class Game:
         self.main()  # Initial movement
         while True:
             # Is player in combat, if so, use combat routine
-            if EnemyMovement.engaged:
+            if self.em.engaged:
                 self.main()
-                self.em.counter(EnemyMovement.engaged)
+                self.em.counter(self.em.engaged)
             # Player is not in combat, proceed as normal
             else:
                 self.main()
@@ -223,7 +168,7 @@ class Game:
         # Setting main loop as false so the player
         # To account for player inaction
         loop = False
-        if EnemyMovement.engage:
+        if self.em.engage:
             print("\nPlayer has engaged in battle!")
         while not loop:
             # Print available actions
@@ -234,9 +179,10 @@ class Game:
             choice = input()  # get user choice
             # Checking if user input is valid
             if choice.capitalize() == "Move":
-                self.em.engaged = False
+                self.em.engaged = None
+                self.em.engage = False
                 # loop = True
-                self.move()
+                self.game_map.move()
                 loop = True
             elif choice.capitalize() == "Search":
                 self.GameF.character.search()

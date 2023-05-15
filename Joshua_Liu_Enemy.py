@@ -7,16 +7,14 @@ This file contains the module for enemies in
 from random import *
 
 
-class EnemyMovement:
-    """
-    Class for Enemy movement
-    """
-    engaged = None  # Enemy currently engaged in combat with player
-    number = 0
-    engage = False  # Is the player currently engaged with the enemy?
+class EnemyActions:
+    """Class for Enemy actions"""
 
     def __init__(self):
         self.playeraction = False  # Is it the player's turn to move?
+        self.engaged = None
+        self.number = 0
+        self.engage = False
 
     def counter(self, eenemy=None):
         """Function in charge of executing enemy action"""
@@ -25,9 +23,7 @@ class EnemyMovement:
 
 
 class Enemy:
-    """
-    Class for Enemies
-    """
+    """Class for Enemies"""
 
     def __init__(self, name, stats, position, target):
         self.name = name  # Enemy name
@@ -40,9 +36,7 @@ class Enemy:
         self.target = target  # Enemy access to player object
 
     def baction(self):
-        """
-        Method that handles enemy actions
-        """
+        """Method that handles enemy actions"""
         # Dice roll for enemy attack
         if randint(1, 5) == randint(1, 5):
             print(f"{self.name} used {self.action[0]}!")
@@ -57,23 +51,17 @@ class Enemy:
             self.heal(randint(1, 3))  # Heal random amount for enemy
 
     def heal(self, amount):
-        """
-        Method that handles enemy healing
-        """
+        """Method that handles enemy healing"""
         self.hp += amount
         return
 
     def take_dmg(self, dmg):
-        """
-        Method that handles enemy taking damage
-        """
+        """Method that handles enemy taking damage"""
         self.hp -= dmg
 
 
 class Boss(Enemy):
-    """
-    Class for Bosses
-    """
+    """Class for Bosses"""
     def __init__(self, name,  stats, position, target):
         super().__init__(name, stats, position, target)
         # List of enemy actions options
@@ -84,9 +72,7 @@ class Boss(Enemy):
         self.superattacked = False  # Has the boss super attacked?
 
     def take_dmg(self, dmg):
-        """
-        Method that handles enemy taking damage
-        """
+        """Method that handles enemy taking damage"""
         if not self.blocking:
             self.hp -= dmg
         else:
@@ -94,9 +80,7 @@ class Boss(Enemy):
             self.blocking = False
 
     def baction(self):
-        """
-        Method handling boss actions
-        """
+        """Method handling boss actions"""
         self.panic()
         if randint(1, 2) == randint(1, 2):
             choice = self.actions[randint(0, 3)]
@@ -114,9 +98,7 @@ class Boss(Enemy):
             print("BOSS failed move! Strike back!")
 
     def attack(self):
-        """
-        Method handling boss attack
-        """
+        """Method handling boss attack"""
         print(f"\n{self.name} used {self.action[0]}!")
         print(f"You took {self.Damage} damage!")
         if self.superattacked:
@@ -125,9 +107,7 @@ class Boss(Enemy):
             self.target.take_damage(self.Damage)
 
     def super_attack(self):
-        """
-        Method handling boss super attack
-        """
+        """Method handling boss super attack"""
         # Checking if the boss has super attacked
         if self.superattacked:
             # Dice roll to super attack
@@ -150,9 +130,7 @@ class Boss(Enemy):
                 print(f"{self.name} failed to attack! Your move!")
 
     def panic(self):
-        """
-        Method handling boss panic functionality
-        """
+        """Method handling boss panic functionality"""
         if 3 > self.hp > 0:  # Checking panic conditions
             print("\nThe BOSS is unleashing its fury!")
             self.super_attack()
