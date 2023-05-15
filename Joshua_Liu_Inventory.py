@@ -10,7 +10,7 @@ class Inventory:
     """Class for the player inventory"""
 
     def __init__(self):
-        self.inventory = ["Fists"]
+        self.inventory = ["Fists", "Key"]
         return
 
     def check_inv(self):

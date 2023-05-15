@@ -8,10 +8,6 @@ import Joshua_Liu_Enemy
 from Joshua_Liu_Game_Functions import GeneralModules
 import Joshua_Liu_Player
 import Joshua_Liu_Map
-# import Joshua_Liu_Enemy
-
-
-engage = False  # variable for checking if player is engaged in combat
 
 
 class Game:
@@ -20,7 +16,6 @@ class Game:
     def __init__(self):
         self.map = []  # list for simple map (no room objects)
         self.world = []  # list for map with room objects
-        self.GameF = None  # Variable for object
         # self.em = EnemyMovement()  # Variable for enemy movement object
         self.em = None
         self.game_map = None
@@ -31,10 +26,13 @@ class Game:
     def game_quit(self, player):
         """Method for handling the player quiting the game"""
         # Data relating to player
-        gdata = [player.name, player.hp, player.inventory,
-                 player.pos, player.room, self.em.engaged]
+        gdata = [self.character.name, self.character.hp,
+                 self.character.inventory, self.character.pos,
+                 self.character.room, self.em.engaged]
+        # Data relating to the map
+        mdata = [self.game_map.roommap, self.game_map.layoutmap]
         # Write map to file
-        GeneralModules.write_to_file("prevmap", self.game_map)
+        GeneralModules.write_to_file("prevmap", mdata)
         # Write character state to file
         GeneralModules.write_to_file("previnv", gdata)
         quit()
@@ -51,13 +49,13 @@ class Game:
         print("\nYou chose to fight back!")
         print("These are the options that you have:")
         for item in self.character.inventory:
-            if "Dmg" in self.GameF.ITEMS[item]:
+            if "Dmg" in self.game_map.ITEMS[item]:
                 print(f"{index}:  {item}\n"
-                      f"{self.GameF.ITEMS[item]['Desc']}")
+                      f"{self.game_map.ITEMS[item]['Desc']}")
                 index += 1
         if "Shield" in self.character.inventory:
             print(f"{index}:  Shield\n"
-                  f"{self.GameF.ITEMS['Shield']['Desc']}")
+                  f"{self.game_map.ITEMS['Shield']['Desc']}")
         print("Make your choice!")
         # Giving player chance to act
         while loop:
@@ -70,8 +68,8 @@ class Game:
                 else:
                     # Inflicting damage on enemy
                     self.em.engaged.take_dmg(
-                        self.GameF.ITEMS[item]["Dmg"])
-                    print(f"You did {self.GameF.ITEMS[item]['Dmg']} "
+                        self.game_map.ITEMS[item]["Dmg"])
+                    print(f"You did {self.game_map.ITEMS[item]['Dmg']} "
                           f"DMG to {self.em.engaged.name}")
                     if self.em.engaged.hp <= 0:
                         print(f"{self.em.engaged.name} "
@@ -91,9 +89,7 @@ class Game:
                 print("Bad input! Try again.\n\n")
 
     def start(self):
-        """
-        Method for handling the start of the game
-        """
+        """Method for handling the start of the game"""
         x = True  # Setting start up loop as true
         print("Do you want to load a previous session?")
         print("If you want to, enter previous, "
@@ -105,8 +101,8 @@ class Game:
                     # Get previous map
                     gmap = \
                         GeneralModules.read_to_file("prevmap", "reload")
-                    self.game_map.roommap = gmap[1]
-                    self.game_map.layoutmap = gmap[0]
+                    self.game_map.roommap = gmap[0]
+                    self.game_map.layoutmap = gmap[1]
                     # Get previous character state
                     prevcharacter = \
                         GeneralModules.read_to_file("previnv", "reload")
@@ -194,14 +190,14 @@ class Game:
                 loop = True
             # capitalize() wont work. Need title()
             elif choice.title() == "Check Inventory":
-                self.character.check_inv()
+                self.character.inventory.check_inv()
             elif choice.title() == "Checkup":
                 # Checking how much health player has
                 print(f"HP: {self.character.hp}")
             # Player attempting to trigger win condition
             elif choice.title() == "Leave Dungeon":
                 if choice.title() in self.character.actions:
-                    self.character.room.exitgame()
+                    self.game_map.exitgame()
             # End Placeholder functions
             elif choice.capitalize() == "Quit":
                 self.game_quit(self.character)

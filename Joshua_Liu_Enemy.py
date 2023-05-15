@@ -124,7 +124,6 @@ class Boss(Enemy):
         super().__init__(name, stats, position, target)
         # List of enemy actions options
         self.actions = ["Attack", "Super Attack", "Heal", "Defend"]
-        self.activated = True  # Is the boss active?
         self.blocking = False  # Is the boss blocking attacks?
         self.boss = True
         self.superattacked = False  # Has the boss super attacked?

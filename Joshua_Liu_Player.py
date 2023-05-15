@@ -5,6 +5,7 @@ May 14, 2023
 This file contains the module for the player in the game
 """
 import random
+import Joshua_Liu_Inventory
 
 
 class Player:
@@ -12,7 +13,8 @@ class Player:
     def __init__(self, name, hp, pos, inventory=None):
         self.name = name  # Name of player
         self.hp = hp  # Player health
-        self.inventory = ["Fists"]  # Initial inventory
+        # Initial inventory
+        self.inventory = Joshua_Liu_Inventory.Inventory()
         # List of actions player can take
         self.actions = ["Search", "Move", "Battle",
                         "Check Inventory", "Checkup"]
@@ -42,12 +44,6 @@ class Player:
             print("You died!")
             quit()
 
-    def check_inv(self):
-        """Method for handling checking player inventory"""
-        print(f"You have {len(self.inventory)} items in your inventory")
-        for item in self.inventory:
-            print(f"You have a {item}")
-
     def search(self):
         """Method for handling searching rooms for treasure"""
         # Checking if room has any items at all
@@ -61,7 +57,7 @@ class Player:
                 print(f"Desc: "
                       f"{self.room.ITEMS[self.room.items[itemnum]]['Desc']}")
                 # Append item to player inventory
-                self.inventory.append(self.room.items[itemnum])
+                self.inventory.add_inv(self.room.items[itemnum])
                 self.room.items.pop(itemnum)  # Remove item from room
             else:  # Player found nothing
                 print("You found nothing. Better next time chump!")

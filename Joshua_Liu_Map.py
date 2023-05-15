@@ -187,7 +187,7 @@ class Rooms:
         self.items = []
         self.character = character
         self.inroom = False
-        self.EnemyMovement = enemymovement
+        self.enemymovement = enemymovement
         self.enemie = None  # Enemy in room
         self.ITEMS = {
             "Regular Sword": {
@@ -242,8 +242,8 @@ class Rooms:
         Method for handling leaving room
         """
         self.inroom = False  # Setting room as exited
-        self.EnemyMovement.engaged = None  # Player no longer engaged
-        self.EnemyMovement.engage = False  # Player is no longer engaged
+        self.enemymovement.engaged = None  # Player no longer engaged
+        self.enemymovement.engage = False  # Player is no longer engaged
         # Player no longer satisfies win condition
         if "Leave Dungeon" in self.character.actions:
             self.character.actions.remove("Leave Dungeon")
@@ -266,14 +266,13 @@ class Rooms:
                               self.character)
                 print(f"You have encountered a {enemy.name}")
                 # Setting player as engaged against enemy
-                self.EnemyMovement.engaged = enemy
+                self.enemymovement.engaged = enemy
                 # Setting player as engaged
-                self.EnemyMovement.engage = True
+                self.enemymovement.engage = True
                 # Setting enemy in room as this enemy
                 self.enemie = enemy
             # Events for Boss Room
             elif self.roomtype[0] == "Boss Room":
-                print("Entering boss room")
                 # Create random boss object
                 enemyname = Joshua_Liu_Enemy.BOSSLIST[randint(0, 3)]
                 enemy = Boss(enemyname,
@@ -282,9 +281,9 @@ class Rooms:
                              self.character)
                 print(f"You have encountered a {enemy.name}")
                 # Setting player as engaged against boss
-                self.EnemyMovement.engaged = enemy
+                self.enemymovement.engaged = enemy
                 # Setting player as engaged
-                self.EnemyMovement.engage = True
+                self.enemymovement.engage = True
                 # Setting enemy in room as this boss
                 self.enemie = enemy
             # Events for Trap Room
@@ -326,8 +325,8 @@ class Rooms:
                         print(self.enemie.hp)
                         print(f"\nYou have encountered a "
                               f"{self.enemie.name}")
-                        self.EnemyMovement.engaged = self.enemie
-                        self.EnemyMovement.engage = True
+                        self.enemymovement.engaged = self.enemie
+                        self.enemymovement.engage = True
                     else:  # Yes
                         del self.enemie  # Deleting enemy object
                         self.enemie = None
@@ -342,8 +341,8 @@ class Rooms:
                         print(self.enemie.hp)
                         print(f"\nYou have encountered a "
                               f"{self.enemie.name}")
-                        self.EnemyMovement.engaged = self.enemie
-                        self.EnemyMovement.engage = True
+                        self.enemymovement.engaged = self.enemie
+                        self.enemymovement.engage = True
                     else:  # Yes
                         del self.enemie  # Deleting boss object
                         self.enemie = None
