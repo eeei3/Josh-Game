@@ -144,21 +144,9 @@ class GameModules:
     }
 
     def __init__(self, character):
-        # Class variable for player position
-        GameModules.player_pos = [0, 0]
-        # Constant for directions
-        self.DIRECTION = ["forward", "right", "left", "back"]
         # Constant for rooms
         self.ROOM_LEGEND = ROOM_LEGEND
         # Constant for items available
         self.ITEMS = ITEMS
         # Player object
         self.character = character
-
-    def check_inv(self):
-        """Function for printing player inventory"""
-        print(f"You have {len(self.character.inventory)} "
-              f"items in your inventory")
-        if len(self.character.inventory) != 0:
-            for item in self.character.inventory:
-                print(f"You have a {item}")

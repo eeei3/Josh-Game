@@ -68,8 +68,3 @@ class Player:
         else:  # No items in room
             print("You scour the ground, "
                   "but there isn't even a dust speck to pick up!")
-
-    class Inventory:
-        """Class for the player inventory"""
-        def __init__(self):
-            return

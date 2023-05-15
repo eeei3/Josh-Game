@@ -7,6 +7,64 @@ This file contains the module for enemies in
 from random import *
 
 
+ENEMIESLIST = [
+    "Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"
+]
+# Constant list of bosses
+BOSSLIST = ["the FACE", "the MOON", "teh epix duck", "Telamon"]
+# Constant for bosses
+BOSS = {
+    "the FACE": {
+        "HP": 7,
+        "Actions": ["Bite"],
+        "Damage": 7
+    },
+    "the MOON": {
+        "HP": 12,
+        "Actions": ["Roll"],
+        "Damage": 3
+    },
+    "teh epix duck": {
+        "HP": 25,
+        "Actions": ["Quack"],
+        "Damage": 6
+    },
+    "Telamon": {
+        "HP": 20,
+        "Actions": ["Stab"],
+        "Damage": 2
+    }
+}
+# Constant for enemies
+ENEMIES = {
+    "Goblina": {
+        "HP": 3,
+        "Actions": ["Swing"],
+        "Damage": 2
+    },
+    "talking ben": {
+        "HP": 1,
+        "Actions": ["Talk"],
+        "Damage": 2
+    },
+    "Jesse": {
+        "HP": 5,
+        "Actions": ["Cook"],
+        "Damage": 3
+    },
+    "Mr. White": {
+        "HP": 6,
+        "Actions": ["Cook"],
+        "Damage": 1
+    },
+    "Anomaly": {
+        "HP": 3,
+        "Actions": ["Scream"],
+        "Damage": 5
+    }
+}
+
+
 class EnemyActions:
     """Class for Enemy actions"""
 
