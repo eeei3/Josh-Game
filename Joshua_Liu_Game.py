@@ -30,7 +30,9 @@ class Game:
                  self.character.inventory, self.character.pos,
                  self.character.room, self.em.engaged]
         # Data relating to the map
-        mdata = [self.game_map.roommap, self.game_map.layoutmap]
+        mdata = [self.game_map.roommap,
+                 self.game_map.layoutmap,
+                 self.game_map.initpos]
         # Write map to file
         GeneralModules.write_to_file("prevmap", mdata)
         # Write character state to file
@@ -101,8 +103,6 @@ class Game:
                     # Get previous map
                     gmap = \
                         GeneralModules.read_to_file("prevmap", "reload")
-                    self.game_map.roommap = gmap[0]
-                    self.game_map.layoutmap = gmap[1]
                     # Get previous character state
                     prevcharacter = \
                         GeneralModules.read_to_file("previnv", "reload")
@@ -115,16 +115,29 @@ class Game:
                     quit()
                 else:
                     self.character = Joshua_Liu_Player.Player(
-                                    prevcharacter[0],
-                                    prevcharacter[1],
-                                    prevcharacter[3],
-                                    inventory=prevcharacter[2])
+                        prevcharacter[0],
+                        prevcharacter[1],
+                        prevcharacter[3],
+                        inventory=prevcharacter[2])
+                    self.em = Joshua_Liu_Enemy.EnemyActions()
+                    self.game_map = Joshua_Liu_Map.GameMap(
+                        self.character, self.em)
+                    self.game_map.roommap = gmap[0]
+                    self.game_map.layoutmap = gmap[1]
+                    self.game_map.initpos = gmap[2]
                     self.character.room = prevcharacter[4]
                     self.em.engaged = prevcharacter[5]
                     # Getting map length
-                    self.game_map.length = len(self.map[0])
+                    self.game_map.length = len(
+                        self.game_map.layoutmap[0])
                     # Getting map height
-                    self.game_map.height = len(self.map)
+                    self.game_map.height = len(self.game_map.layoutmap)
+                    print(self.character.pos[1])
+                    self.game_map.roommap[self.character.pos[1]] \
+                        [self.character.pos[0]].enter()
+                    self.character.room = self.game_map.roommap[
+                        self.character.pos[1]] \
+                        [self.character.pos[0]]
                     x = False  # stop loop
                 finally:
                     pass
