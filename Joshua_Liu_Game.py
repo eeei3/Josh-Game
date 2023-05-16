@@ -5,7 +5,7 @@ April 24, 2023
 This is a text-based game that is programmed with OOP This file contains
 the class for the overall game.
 """
-import Joshua_Liu_Enemy
+import Joshua_Liu_EnemyMovement
 from Joshua_Liu_Game_Functions import GeneralModules
 import Joshua_Liu_Player
 import Joshua_Liu_Map
@@ -17,14 +17,12 @@ class Game:
     def __init__(self):
         self.map = []  # list for simple map (no room objects)
         self.world = []  # list for map with room objects
-        # self.em = EnemyMovement()  # Variable for enemy movement object
-        self.em = None
-        self.game_map = None
-        self.character = None
-        # Start the game
-        self.start()
+        self.em = None  # Variable for enemy movement object
+        self.game_map = None  # Variable for game map
+        self.character = None  # Variable for character
+        self.start()  # Start the game
 
-    def game_quit(self, player):
+    def game_quit(self):
         """Method for handling the player quiting the game"""
         # Data relating to player
         gdata = [self.character.name, self.character.hp,
@@ -51,12 +49,12 @@ class Game:
         # Giving player their options
         print("\nYou chose to fight back!")
         print("These are the options that you have:")
-        for item in self.character.inventory:
+        for item in self.character.inventory.inventory:
             if "Dmg" in self.game_map.ITEMS[item]:
                 print(f"{index}:  {item}\n"
                       f"{self.game_map.ITEMS[item]['Desc']}")
                 index += 1
-        if "Shield" in self.character.inventory:
+        if "Shield" in self.character.inventory.inventory:
             print(f"{index}:  Shield\n"
                   f"{self.game_map.ITEMS['Shield']['Desc']}")
         print("Make your choice!")
@@ -65,8 +63,9 @@ class Game:
             choice = input()  # Get player input
             item = choice.title()
             # Checking if input is valid or not
-            if item in self.character.inventory:
+            if item in self.character.inventory.inventory:
                 if item == "Shield":
+                    # Character is blockign enemy attacks
                     self.character.blocking = True
                 else:
                     # Inflicting damage on enemy
@@ -74,12 +73,14 @@ class Game:
                         self.game_map.ITEMS[item]["Dmg"])
                     print(f"You did {self.game_map.ITEMS[item]['Dmg']} "
                           f"DMG to {self.em.engaged.name}")
+                    # Checking if enemy is dead or not
                     if self.em.engaged.hp <= 0:
                         print(f"{self.em.engaged.name} "
                               f"has been defeated")
                         if self.em.engaged.boss:
                             self.character.room.items.append(
                                 "Key")
+                        # Setting player as unengaged
                         self.em.engage = False
                         self.em.engaged = None
                     # Checking if player used Gilgamesh
@@ -103,10 +104,10 @@ class Game:
                 try:
                     # Get previous map
                     gmap = \
-                        GeneralModules.read_to_file("prevmap", "reload")
+                        GeneralModules.read_to_file("prevmap")
                     # Get previous character state
                     prevcharacter = \
-                        GeneralModules.read_to_file("previnv", "reload")
+                        GeneralModules.read_to_file("previnv")
                 except FileNotFoundError:
                     print("Previous save does not exist! Try again")
                     continue
@@ -120,14 +121,18 @@ class Game:
                         prevcharacter[1],
                         prevcharacter[3],
                         inventory=prevcharacter[2])
-                    self.em = Joshua_Liu_Enemy.EnemyActions()
+                    print(prevcharacter[3])
+                    self.em = Joshua_Liu_EnemyMovement.EnemyActions()
                     self.game_map = Joshua_Liu_Map.GameMap(
                         self.character, self.em)
                     self.game_map.roommap = gmap[0]
                     self.game_map.layoutmap = gmap[1]
+                    print(gmap[1])
                     self.game_map.initpos = gmap[2]
+                    print(gmap[2])
                     self.character.room = prevcharacter[4]
                     self.em.engaged = prevcharacter[5]
+                    self.character.pos = prevcharacter[3]
                     # Getting map length
                     self.game_map.length = len(
                         self.game_map.layoutmap[0])
@@ -148,7 +153,9 @@ class Game:
                 name = input()
                 # Player object
                 self.character = Joshua_Liu_Player.Player(name, 5, [])
-                self.em = Joshua_Liu_Enemy.EnemyActions()
+                # Enemy movement object
+                self.em = Joshua_Liu_EnemyMovement.EnemyActions()
+                # Game map object
                 self.game_map = Joshua_Liu_Map.GameMap(
                     self.character, self.em)
                 # Player spawn point
@@ -168,18 +175,21 @@ class Game:
             # Is player in combat, if so, use combat routine
             if self.em.engaged:
                 self.main()
-                self.em.counter(self.em.engaged)
+                # Double-checking, because if the player
+                # Moves during combat, if the player enters a new
+                # fight room, enemy gets first move
+                if self.em.engaged:
+                    self.em.counter(self.em.engaged)
             # Player is not in combat, proceed as normal
             else:
                 self.main()
 
     def main(self):
-        """
-        Method for handling player loop
-        """
+        """Method for handling player loop"""
         # Setting main loop as false so the player
         # To account for player inaction
         loop = False
+        # Checking if player is engaged in battle
         if self.em.engage:
             print("\nPlayer has engaged in battle!")
         while not loop:
@@ -190,31 +200,36 @@ class Game:
             print("Enter quit to exit the game")
             choice = input()  # get user choice
             # Checking if user input is valid
+            # Checking if user wants to move
             if choice.capitalize() == "Move":
                 self.em.engaged = None
                 self.em.engage = False
                 # loop = True
                 self.game_map.move()
                 loop = True
+            # Checking if user wants to search for items
             elif choice.capitalize() == "Search":
                 self.character.search()
                 loop = True
+            # Checking if user wants to battle
             elif choice.capitalize() == "Battle":
                 self.battle()
                 loop = True
             # capitalize() wont work. Need title()
+            # Checking if user wants to check their inventory
             elif choice.title() == "Check Inventory":
                 self.character.inventory.check_inv()
+            # Checking how much health player has
             elif choice.title() == "Checkup":
-                # Checking how much health player has
                 print(f"HP: {self.character.hp}")
             # Player attempting to trigger win condition
             elif choice.title() == "Leave Dungeon":
+                # Check if this is valid choice (Prevent cheating)
                 if choice.title() in self.character.actions:
                     self.game_map.exitgame()
-            # End Placeholder functions
+            # Player exits game
             elif choice.capitalize() == "Quit":
-                self.game_quit(self.character)
+                self.game_quit()
             else:
                 print("Bad input. Try that again.")
 

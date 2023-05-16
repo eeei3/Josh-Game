@@ -10,11 +10,11 @@ class Inventory:
     """Class for the player inventory"""
 
     def __init__(self):
-        self.inventory = ["Fists", "Key"]
+        self.inventory = ["Fists", "Shield"]
         return
 
     def check_inv(self):
-        """Function for printing player inventory"""
+        """Method for printing player inventory"""
         print(f"You have {len(self.inventory)} "
               f"items in your inventory")
         if len(self.inventory) != 0:
@@ -22,4 +22,5 @@ class Inventory:
                 print(f"You have a {item}")
 
     def add_inv(self, item):
+        """Method for adding items to player's inventory"""
         self.inventory.append(item)

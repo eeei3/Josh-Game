@@ -7,6 +7,7 @@ This file contains the module for enemies in the game, and Bosses
 from random import *
 
 
+# Constant for list of enemies
 ENEMIESLIST = [
     "Goblina", "talking ben", "Jesse", "Mr. White", "Anomaly"
 ]
@@ -63,21 +64,6 @@ ENEMIES = {
         "Damage": 5
     }
 }
-
-
-class EnemyActions:
-    """Class for Enemy actions"""
-
-    def __init__(self):
-        self.playeraction = False  # Is it the player's turn to move?
-        self.engaged = None
-        self.number = 0
-        self.engage = False
-
-    def counter(self, eenemy=None):
-        """Function in charge of executing enemy action"""
-        if eenemy is not None:
-            eenemy.baction()
 
 
 class Enemy:
