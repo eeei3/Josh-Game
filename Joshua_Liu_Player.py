@@ -10,6 +10,7 @@ import Joshua_Liu_Inventory
 
 class Player:
     """Class for the player"""
+
     def __init__(self, name, hp, pos, inventory=None):
         self.name = name  # Name of player
         self.hp = hp  # Player health
@@ -18,8 +19,7 @@ class Player:
         # List of actions player can take
         self.actions = ["Search", "Move", "Battle",
                         "Check Inventory", "Checkup"]
-        # Player position
-        self.pos = pos
+        self.pos = pos  # Player position
         # Room that player is currently in
         # Also gives player object access to room object
         self.room = None
