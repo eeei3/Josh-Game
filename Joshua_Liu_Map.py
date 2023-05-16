@@ -304,8 +304,8 @@ class Rooms:
                 self.items.append(itemlist[treasure])
                 # Chance for a second treasure to spawn in
                 if randint(0, 4) == 1:
-                    treasure = randint(0, 4) # index in list
-                    itemlist = [] # list of spawnable items
+                    treasure = randint(0, 4)  # index in list
+                    itemlist = []  # list of spawnable items
                     for key in self.ITEMS:
                         itemlist.append(key)
                     self.items.append(itemlist[treasure])
