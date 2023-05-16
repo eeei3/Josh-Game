@@ -223,6 +223,7 @@ class Game:
                 print(f"HP: {self.character.hp}")
             # Player attempting to trigger win condition
             elif choice.title() == "Leave Dungeon":
+                # Check if this is valid choice (Prevent cheating)
                 if choice.title() in self.character.actions:
                     self.game_map.exitgame()
             # Player exits game
