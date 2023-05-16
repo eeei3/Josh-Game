@@ -4,7 +4,7 @@ CS 30 Period 1
 April 24, 2023
 This is a text-based game that is programmed with OOP.
 """
-import Joshua_Liu_Enemy
+import Joshua_Liu_EnemyMovement
 from Joshua_Liu_Game_Functions import GeneralModules
 import Joshua_Liu_Player
 import Joshua_Liu_Map
@@ -72,12 +72,14 @@ class Game:
                         self.game_map.ITEMS[item]["Dmg"])
                     print(f"You did {self.game_map.ITEMS[item]['Dmg']} "
                           f"DMG to {self.em.engaged.name}")
+                    # Checking if enemy is dead or not
                     if self.em.engaged.hp <= 0:
                         print(f"{self.em.engaged.name} "
                               f"has been defeated")
                         if self.em.engaged.boss:
                             self.character.room.items.append(
                                 "Key")
+                        # Setting player as unengaged
                         self.em.engage = False
                         self.em.engaged = None
                     # Checking if player used Gilgamesh
@@ -119,7 +121,7 @@ class Game:
                         prevcharacter[3],
                         inventory=prevcharacter[2])
                     print(prevcharacter[3])
-                    self.em = Joshua_Liu_Enemy.EnemyActions()
+                    self.em = Joshua_Liu_EnemyMovement.EnemyActions()
                     self.game_map = Joshua_Liu_Map.GameMap(
                         self.character, self.em)
                     self.game_map.roommap = gmap[0]
@@ -150,7 +152,9 @@ class Game:
                 name = input()
                 # Player object
                 self.character = Joshua_Liu_Player.Player(name, 5, [])
-                self.em = Joshua_Liu_Enemy.EnemyActions()
+                # Enemy movement object
+                self.em = Joshua_Liu_EnemyMovement.EnemyActions()
+                # Game map object
                 self.game_map = Joshua_Liu_Map.GameMap(
                     self.character, self.em)
                 # Player spawn point
