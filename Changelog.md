@@ -1,3 +1,33 @@
+v4.3.5
+=
+Joshua_Liu_Game.py
+-
+changed - isolated game class
+
+changed - pep8
+
+fixed - Game resumption
+
+Joshua_Liu_Inventory.py
+-
+created
+
+Joshua_Liu_Map.py
+-
+created
+
+Joshua_Liu_Rooms.py
+-
+created
+
+Joshua_Liu_Player.py
+-
+created
+
+Joshua_Liu_EnemyMovement.py
+-
+created
+
 v4.2.5
 =
 Joshua_Liu_Game.py
