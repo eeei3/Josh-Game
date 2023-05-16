@@ -2,7 +2,8 @@
 Joshua
 CS 30 Period 1
 April 24, 2023
-This is a text-based game that is programmed with OOP.
+This is a text-based game that is programmed with OOP This file contains
+the class for the overall game.
 """
 import Joshua_Liu_Enemy
 from Joshua_Liu_Game_Functions import GeneralModules

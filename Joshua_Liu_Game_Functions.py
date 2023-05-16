@@ -2,10 +2,8 @@
 Joshua
 CS 30 Period 1
 March 30, 2023
-This is file with functions for Joshua_Liu_Game.py
+This is file with file I/O functions for Joshua_Liu_Game.py
 """
-
-from random import *
 import pickle
 
 

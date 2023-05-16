@@ -2,7 +2,7 @@
 Joshua
 CS 30 Period 1
 May 14, 2023
-This file contains the module for enemies in
+This file contains the module for enemies in the game, and Bosses
 """
 from random import *
 

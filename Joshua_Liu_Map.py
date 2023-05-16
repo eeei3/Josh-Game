@@ -2,7 +2,8 @@
 Joshua
 CS 30 Period 1
 May 14, 2023
-This file contains the module for the Game map
+This file contains the module for the game map
+and the method for movement
 """
 from Joshua_Liu_Enemy import Enemy, Boss
 import Joshua_Liu_Enemy
